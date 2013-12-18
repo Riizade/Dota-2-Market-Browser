@@ -26,6 +26,9 @@ workfile.write(soup.prettify())
 workfile.close()
 
 for i in soup.findAll('a'):
-    print(i.div.div.span.span.prettify())
+    quantity = i.div.div.span.span.contents[0].strip('\n\r ')
+    price = i.div.div.span.span.contents[4].strip('\n\r ')
+    name = i.div.div.span.span.span.contents[0].strip('\n\r ')
+    print(name + '\n' + price + '\n' + quantity + '\n')
 
 
