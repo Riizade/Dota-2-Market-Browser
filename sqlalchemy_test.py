@@ -3,6 +3,18 @@ from BeautifulSoup import BeautifulSoup
 import httplib2
 import json
 
+#example item class
+class item:
+    name = ''
+    quantity = 0
+    price = 0.0
+    set = ''
+    image_url_large = ''
+    image_url_small = ''
+    item_type = ''
+    item_slot = ''
+    hero = ''
+
 page_start = 0
 page_count = 100
 
