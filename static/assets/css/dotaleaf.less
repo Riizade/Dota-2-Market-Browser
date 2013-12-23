@@ -1,10 +1,10 @@
 @clr-base: #222222;
 @clr-item-bg-1: @clr-base + #111111;
 @clr-item-bg-2: @clr-base + #222222;
-@clr-item-border: @clr-base - #222222;
+@clr-item-border: @clr-base - #0A0A0A;
 
-@dim-item-width: 900px;
-@dim-item-height: 190px;
+@dim-item-width: 700px;
+@dim-item-height: 90px;
 @dim-item-img-height: @dim-item-height * 0.9;
 @dim-item-img-width: @dim-item-img-height * 1.505;
 
@@ -16,12 +16,25 @@ body {
 .market_item {
     width: @dim-item-width;
     height: @dim-item-height;
-    border: 2px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: @clr-item-border;
     margin-left: auto;
     margin-right: auto;
     background-color: @clr-item-bg-1;
     position: relative;
+}
 
+.market_item_hover {
+    width: @dim-item-width;
+    height: @dim-item-height;
+    border-style: solid;
+    border-width: 2px;
+    border-color: @clr-item-border + #404040;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: @clr-item-bg-1;
+    position: relative;
 }
 
 .market_item:nth-child(even) {
@@ -29,12 +42,15 @@ body {
 }
 
 .item_image_crop{
-    left: @dim-item-width - @dim-item-img-width - 10px;
+    @vertical-spacing: (@dim-item-height - @dim-item-img-height) /2;
+    @horizontal-spacing: @vertical-spacing;
+    left: @dim-item-width - @dim-item-img-width - @vertical-spacing;
     top: (@dim-item-height - @dim-item-img-height) /2;
     overflow:hidden;
     width: @dim-item-img-width;
     height: @dim-item-img-height;
     border: 0px;
+    border-color: white;
     position: absolute;
     }
 
@@ -44,4 +60,15 @@ body {
     position: absolute;
     left: -5%;
     top: -5%;
+}
+
+.span_link {
+  position:absolute; 
+  width:100%;
+  height:100%;
+  top:0;
+  left: 0;
+
+  /* edit: added z-index */
+  z-index: 1;
 }
