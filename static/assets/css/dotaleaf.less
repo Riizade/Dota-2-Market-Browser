@@ -1,0 +1,21 @@
+@clr-base: #222222;
+@clr-item-bg-1: @clr-base + #111111;
+@clr-item-bg-2: @clr-base + #222222;
+@clr-item-border: @clr-base - #222222;
+
+body {
+    background-image: url(black-linen.png)
+}
+
+.market_item {
+    width: 900px;
+    height:250px;
+    border: 2px;
+    border-radius: 25px;
+    background-color: @clr-item-bg-1;
+
+}
+
+.market_item:nth-child(even) {
+    background-color: clr-item-bg-2;
+}

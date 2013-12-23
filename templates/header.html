@@ -8,7 +8,7 @@
 
         <!-- CSS -->
         <link rel="shortcut icon" href="{{url_for('static',filename="assets/ico/favicon.png")}}">
-        <link href="{{url_for('static',filename="assets/css/dotaleaf.css")}}" rel="stylesheet">
+        <link href="{{url_for('static',filename="assets/css/dotaleaf.less")}}" rel="stylesheet/less">
 
         {%if page_title %}
         <title>{{page_title}} - Market Browser</title>
@@ -18,10 +18,9 @@
 
         <!-- jQuery Plugins -->
         <script src="{{url_for('static',filename="assets/js/jquery-2.0.3.js")}}"></script>
-        <script src="{{url_for('static',filename="assets/js/jquery.dataTables.js")}}"></script>
+        <script src="{{url_for('static',filename="assets/js/less-1.5.0.min.js")}}"></script>
     </head>
-    {% block body %}{%endblock%}
-
-<!-- bootstrap -->
+    {% block body %}
+    {%endblock%}
 
 </html>
