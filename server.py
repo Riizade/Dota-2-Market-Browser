@@ -1,19 +1,32 @@
 from flask import *
 import json
-import sqlalchemy
+from sqlalchemy import *
 from BeautifulSoup import BeautifulSoup
 import httplib2
 
 app = Flask(__name__)
 app.debug = True
 
-@app.route('/')
-def _():
-    return render_template("index.html")
+#------------------------------------------------------------------------------
+# Database Operations
+#------------------------------------------------------------------------------
+engine = create_engine('sqlite:///:memory:', echo=True)
+Base = declarative_base()
 
-@app.route('/market/')
-def market():
-    return render_template("market.html")
+class Item(Base):
+    __tablename__ = 'items'
+
+    name = Column(String, primary_key=True)
+    quantity = Column(Integer)
+    price = Column(Float)
+    set = Column(String)
+    image_url_large = Column(String)
+    image_url_small = Column(String)
+    item_type = Column(String)
+    item_slot = Column(String)
+    hero = Column(String)
+
+
 
 #usage:
 #takes a starting page (set of 100 items)
@@ -59,6 +72,18 @@ def update_items(page_start):
         page_start += 100
 
     return page_start
+
+#------------------------------------------------------------------------------
+# URL Routing
+#------------------------------------------------------------------------------
+
+@app.route('/')
+def _():
+    return render_template("index.html")
+
+@app.route('/market/')
+def market():
+    return render_template("market.html")
 
 
 if __name__ == '__main__':
