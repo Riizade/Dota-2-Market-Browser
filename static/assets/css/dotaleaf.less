@@ -3,13 +3,19 @@
 @clr-item-bg-2: @clr-base + #222222;
 @clr-item-border: @clr-base - #222222;
 
+@dim-item-width: 900px;
+@dim-item-height: 190px;
+@dim-item-img-height: @dim-item-height * 0.9;
+@dim-item-img-width: @dim-item-img-height * 1.505;
+
+
 body {
     background-image: url(black-linen.png)
 }
 
 .market_item {
-    width: 900px;
-    height:250px;
+    width: @dim-item-width;
+    height: @dim-item-height;
     border: 2px;
     border-radius: 25px;
     background-color: @clr-item-bg-1;
@@ -18,4 +24,13 @@ body {
 
 .market_item:nth-child(even) {
     background-color: clr-item-bg-2;
+}
+
+.item_image {
+    border-radius: 25px;
+    border: 0px;
+    height: @dim-item-img-height;
+    width: @dim-item-img-width;
+    margin-left: @dim-item-width - @dim-item-img-width - 10px;
+    margin-top: (@dim-item-height - @dim-item-img-height) /2;
 }
