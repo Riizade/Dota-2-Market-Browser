@@ -11,8 +11,6 @@ resp, content = httplib2.Http().request(
     "http://steamcommunity.com/market/search/render/?query=appid%3A570&start=" 
     + str(page_start) + "&count=" + str(page_count))
 
-
-
 #DEBUG for working from file
 #content = open('workfile.html', 'r').read()
 
