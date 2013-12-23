@@ -21,11 +21,10 @@ body {
     border-color: @clr-item-border;
     margin-left: auto;
     margin-right: auto;
-    background-color: @clr-item-bg-1;
     position: relative;
 }
 
-.market_item_hover {
+.market_item:hover {
     width: @dim-item-width;
     height: @dim-item-height;
     border-style: solid;
@@ -33,8 +32,11 @@ body {
     border-color: @clr-item-border + #404040;
     margin-left: auto;
     margin-right: auto;
-    background: @clr-item-bg-1;
     position: relative;
+}
+
+.market_item:nth-of-type(odd) {
+    background: @clr-item-bg-1;
 }
 
 .market_item:nth-of-type(even) {
