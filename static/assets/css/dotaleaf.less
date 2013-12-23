@@ -17,8 +17,10 @@ body {
     width: @dim-item-width;
     height: @dim-item-height;
     border: 2px;
-    border-radius: 25px;
+    margin-left: auto;
+    margin-right: auto;
     background-color: @clr-item-bg-1;
+    position: relative;
 
 }
 
@@ -26,11 +28,20 @@ body {
     background-color: clr-item-bg-2;
 }
 
-.item_image {
-    border-radius: 25px;
-    border: 0px;
-    height: @dim-item-img-height;
+.item_image_crop{
+    left: @dim-item-width - @dim-item-img-width - 10px;
+    top: (@dim-item-height - @dim-item-img-height) /2;
+    overflow:hidden;
     width: @dim-item-img-width;
-    margin-left: @dim-item-width - @dim-item-img-width - 10px;
-    margin-top: (@dim-item-height - @dim-item-img-height) /2;
+    height: @dim-item-img-height;
+    border: 0px;
+    position: absolute;
+    }
+
+.item_image {
+    width: 1.11111 * @dim-item-img-width;
+    height: 1.11111 * @dim-item-img-height;
+    position: absolute;
+    left: -5%;
+    top: -5%;
 }
