@@ -1,6 +1,6 @@
 @clr-base: #222222;
 @clr-item-bg-1: @clr-base + #111111;
-@clr-item-bg-2: @clr-base + #222222;
+@clr-item-bg-2: @clr-base + #1C1C1C;
 @clr-item-border: @clr-base - #0A0A0A;
 
 @dim-item-width: 700px;
@@ -33,12 +33,12 @@ body {
     border-color: @clr-item-border + #404040;
     margin-left: auto;
     margin-right: auto;
-    background-color: @clr-item-bg-1;
+    background: @clr-item-bg-1;
     position: relative;
 }
 
-.market_item:nth-child(even) {
-    background-color: clr-item-bg-2;
+.market_item:nth-of-type(even) {
+    background: @clr-item-bg-2;
 }
 
 .item_image_crop{
