@@ -1,17 +1,20 @@
 from flask import *
 import json
 from sqlalchemy import *
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 from BeautifulSoup import BeautifulSoup
 import httplib2
 
-app = Flask(__name__)
-app.debug = True
+#------------------------------------------------------------------------------
+# Setup
+#------------------------------------------------------------------------------
 
-#------------------------------------------------------------------------------
-# Database Operations
-#------------------------------------------------------------------------------
-engine = create_engine('sqlite:///:memory:', echo=True)
+app = Flask(__name__)
+
+engine = create_engine('sqlite:///items.db', echo=True)
 Base = declarative_base()
+SessionInstance = sessionmaker(bind=engine)
 
 class Item(Base):
     __tablename__ = 'items'
@@ -26,22 +29,23 @@ class Item(Base):
     item_slot = Column(String)
     hero = Column(String)
 
-
+#create 'items' table
+Item.metadata.create_all(bind=engine)
 
 #usage:
 #takes a starting page (set of 100 items)
 #returns the starting page to be used for the next call to ensure that there
 #are no duplicates and that the function doesn't ask for more items than exist
-def update_items(page_start):
-    page_count = 100
+def update_items(current_page):
+    item_count = 100
 
     #get 100 items from Dota 2 Community Market
-    resp, content = httplib2.Http().request(
-        "http://steamcommunity.com/market/search/render/?query=appid%3A570&start=" 
-        + str(page_start) + "&count=" + str(page_count))
+    #resp, content = httplib2.Http().request(
+    #    "http://steamcommunity.com/market/search/render/?query=appid%3A570&start=" 
+    #    + str(current_page) + "&count=" + str(item_count))
 
     #DEBUG for working from file
-    #content = open('workfile.html', 'r').read()
+    content = open('workfile.html', 'r').read()
 
     request = json.loads(content)
 
@@ -58,24 +62,34 @@ def update_items(page_start):
 
     soup = BeautifulSoup(temp_str)
 
+    #create sql session to add items to the database
+    session = SessionInstance()
+
     for i in soup.findAll('a'):
-        quantity = i.div.div.span.span.contents[0].strip('\n\r ')
-        price = i.div.div.span.contents[6].strip('\n\r ')
+        quantity = int(i.div.div.span.span.contents[0].strip('\n\r '))
+        price = float(i.div.div.span.contents[6].strip('\n\r '))
         name = i.div.contents[5].span.contents[0].strip('\n\r ')
 
         #update item in database
-        #TODO
+        session.add(Item(name=name, price=price, quantity=quantity))
+        session.commit()
 
-    if (page_start + page_count >= int(request['total_count'])):
-        page_start = 0
+    if (current_page + item_count >= int(request['total_count'])):
+        current_page = 0
     else:
-        page_start += 100
+        current_page += item_count
 
-    return page_start
+    #close the session
+    session.close()
+
+    return current_page
 
 #------------------------------------------------------------------------------
 # URL Routing
 #------------------------------------------------------------------------------
+#the number of the last item loaded from the market
+
+update_items(0)
 
 @app.route('/')
 def _():
@@ -83,8 +97,13 @@ def _():
 
 @app.route('/market/')
 def market():
-    return render_template("market.html")
+    session = SessionInstance()
+    items = session.query(Item).all()
+    session.close()
+    return render_template("market.html", items=items)
 
-
-if __name__ == '__main__':
-    app.run()
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# Script Logic
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
