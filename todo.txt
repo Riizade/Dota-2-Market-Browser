@@ -4,5 +4,5 @@
 - Possibly store resized versions of images to save on bandwidth
 - Implement paging to save bandwidth
 - Have div URLs redirect to the SteamCommunity store page
-- Find and parse hex colors for Cursed items
+- Find and parse hex colors for Cursed and Inscribed items
 - Give MarketItems a many-to-one relationship with Items
