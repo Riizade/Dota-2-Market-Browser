@@ -9,13 +9,13 @@
 
     {% for item in items %}
     <div class="market_item">
-    <span class="item_name">{{item.name}}</span>
-    <span class="item_price">{{item.price}}</span>
-    <span class="item_quantity">{{item.quantity}}</span>
-    <span class="item_set">{{item.set}}</span>
-    <span class="item_type">{{item.item_type}}</span>
-    <span class="item_slot">{{item.item_slot}}</span>
-    <span class="item_hero">{{item.hero}}</span>
+    <span class="item_name" style="color:{{item.quality_color}}">{{item.name}}</span>
+    <span class="item_price">Price: {{item.price}}</span>
+    <span class="item_quantity">Quantity: {{item.quantity}}</span>
+    <span class="item_set">Set:<br />{{item.set}}</span>
+    <span class="item_type">Type:<br />{{item.item_type}}</span>
+    <span class="item_slot">Slot:<br />{{item.item_slot}}</span>
+    <span class="item_hero">Hero:<br />{{item.hero}}</span>
     <div class="item_image_crop"><img class="item_image" src="{{url_for('static',filename="assets/images/" + item.name_slug + ".png")}}"></div>
     <a href="http://www.google.com"><span class="span_link"></span></a>
     </div>
