@@ -29,7 +29,7 @@ class Item(Base):
     defindex = Column(Integer, primary_key=True)
     name_slug = Column(String)
     name = Column(String)
-    set = Column(String)
+    item_set = Column(String)
     image_url_large = Column(String)
     image_url_small = Column(String)
     item_type = Column(String)
@@ -66,10 +66,16 @@ def get_items():
             with open('./static/assets/images/' + slugify(i['name']) + '.png', 'w+') as f:
                 f.write(content)
 
+        try:
+            item_set = properfy('_'.join(i['item_set'].split('_')[1:]))
+        except KeyError:
+            item_set = 'None'
+
         session.add(Item(
                     name_slug=slugify(i['name']), 
                     item_type=parse_item_type(i), 
                     item_slot=parse_item_slot(i), 
+                    item_set=item_set,
                     image_url_large=i['image_url_large'],
                     image_url_small=i['image_url'], 
                     hero=get_hero(i['image_url']),
@@ -185,16 +191,20 @@ def hero_name(name):
         if nm[0] == name:
             return nm[1]
 
-    #otherwise just capitalize the name and switch underscores
+    return properfy(name)
+
+def properfy(string):
+    #ocapitalize the words and switch underscores to spaces
     n = ''
     #for each word
-    for s in name.split('_'):
+    for s in string.split('_'):
         n = n + ' ' + s.capitalize()
 
     #strip left space
     n = n.strip(' ')
 
     return n
+
 
 def init_db():
     Item.metadata.create_all(bind=engine)
