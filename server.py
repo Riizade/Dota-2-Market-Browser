@@ -139,7 +139,7 @@ def parse_quality(name):
     #return 'Normal' if no quality matches 
     return 'Normal'
 
-def quality_color(quality):
+def colorize(quality):
 
     quality_map = [
     ['Frozen', '#4983B3'],
@@ -177,7 +177,8 @@ def hero_name(name):
     ['windrunner', 'Windranger'],
     ['siren', 'Naga Siren'],
     ['queenofpain', 'Queen of Pain'],
-    ['necrolyte', 'Necrophos']
+    ['necrolyte', 'Necrophos'],
+    ['witchdoctor', 'Witch Doctor']
     ]
 
     for nm in name_map:
@@ -188,12 +189,10 @@ def hero_name(name):
     n = ''
     #for each word
     for s in name.split('_'):
-        #capitalize
-        s[0] = s[0] - 32
-        n = n + ' ' + s
+        n = n + ' ' + s.capitalize()
 
     #strip left space
-    n.lstrip(' ')
+    n = n.strip(' ')
 
     return n
 
@@ -235,11 +234,11 @@ def update_items(current_page):
     for i in soup.findAll('a'):
         name = i.div.contents[5].span.contents[0].strip('\n\r ')
         name_slug = slugify(name)
-        quantity = int(i.div.div.span.span.contents[0].strip('\n\r '))
-        price = float(i.div.div.span.contents[6].strip('\n\r '))
+        quantity = int(i.div.div.span.span.contents[0].strip('\n\r ').replace(',',''))
+        price = float(i.div.div.span.contents[6].replace('&#36;','').replace('USD','').strip('\n\r '))
         market_link = i['href']
         quality = parse_quality(name)
-        quality_color = quality_color(quality)
+        quality_color = colorize(quality)
 
 
         #if the item exists already
