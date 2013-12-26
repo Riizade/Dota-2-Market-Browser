@@ -122,26 +122,22 @@ def parse_item_slot(item):
             return 'None'
 
 def parse_quality(name):
-    if re.search('Inscribed', name):
-        return 'Inscribed'
-    elif re.search('Heroic', name):
-        return 'Heroic'
-    elif re.search('Genuine', name):
-        return 'Genuine'
-    elif re.search('Cursed', name):
-        return 'Cursed'
-    elif re.search('Corrupted', name):
-        return 'Corrupted'
-    elif re.search('Unusual', name):
-        return 'Unusual'
-    elif re.search('Elder', name):
-        return 'Elder'
-    elif re.search('Self-Made', name):
-        return 'Self-Made'
-    elif re.search('Frozen', name):
-        return 'Frozen'
-    else:
-        return 'Normal'
+    qualities =['Inscribed',
+                'Heroic',
+                'Genuine',
+                'Cursed',
+                'Corrupted',
+                'Unusual',
+                'Elder',
+                'Frozen',
+                'Self-Made',
+                'Autographed']
+    for quality in qualities:
+        if (re.search(quality, name)):
+            return quality
+       
+    #return 'Normal' if no quality matches 
+    return 'Normal'
 
 def quality_color(quality):
     if (quality == 'Frozen'):
