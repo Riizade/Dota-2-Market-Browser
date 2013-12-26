@@ -140,22 +140,24 @@ def parse_quality(name):
     return 'Normal'
 
 def quality_color(quality):
-    if (quality == 'Frozen'):
-        return "#4983B3"
-    elif (quality == 'Corrupted'):
-        return "#A32C2E"
-    elif (quality == 'Cursed'):
-        return "#8650AC"
-    elif (quality == 'Genuine'):
-        return "#4D7455"
-    elif (quality == 'Unusual' or quality == 'Heroic'):
-        return "#8650AC"
-    elif (quality == 'Elder'):
-        return "#476291"
-    elif (quality == 'Self-Made'):
-        return "#70B04A"
-    else:
-        return "#FFFFFF"
+
+    quality_map = [
+    ['Frozen', '#4983B3'],
+    ['Corrupted', '#A32C2E'],
+    ['Cursed', '#8650AC'],
+    ['Genuine', '#4D7455'],
+    ['Unusual', '#8650AC'],
+    ['Heroic', '#8650AC'],
+    ['Elder', '#476291'],
+    ['Self-Made', '#70B04A'],
+    ['Inscribed', '#FFFFFF']]
+    
+    for qm in quality_map:
+        if quality == qm[0]:
+            return qm[1]
+            
+    #if there are no matches
+    return "#FFFFFF"
 
 def init_db():
     Item.metadata.create_all(bind=engine)
