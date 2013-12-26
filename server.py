@@ -36,7 +36,7 @@ class Item(Base):
     item_slot = Column(String)
     hero = Column(String)
 
-class Market_Item(Base):
+class MarketItem(Base):
     __tablename__ = 'market_items'
 
     name = Column(String, primary_key=True)
@@ -163,6 +163,8 @@ def quality_color(quality):
 
 def init_db():
     Item.metadata.create_all(bind=engine)
+    MarketItem.metadata.create_all(bind=engine)
+
     get_items()
     cur_page = 0
     #do-while Python
@@ -205,12 +207,21 @@ def update_items(current_page):
 
 
         try:
-            tmp_item = session.query(Item).filter(Item.name_slug==name_slug)
+            tmp_item = session.query(MarketItem).filter(MarketItem.name==name)
             #update item in database
+            tmp_item.name = name
             tmp_item.quantity = quantity
             tmp_item.price = price
+            tmp_item.name_slug = name_slug
+            tmp_item.market_link = market_link
+            tmp_item.quality = quality
+            tmp_item.quality_color = quality_color
 
         except ValueError:
+            session.add(MarketItem(name=name, name_slug=name_slug, quantity=quantity,
+                        price=price, market_link=market_link, quality=quality,
+                        quality_color=quality_color))
+
 
         session.commit()
 
