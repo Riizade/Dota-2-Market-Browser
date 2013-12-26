@@ -86,7 +86,7 @@ def get_hero(image_url):
     else:
         name = 'None'
 
-    return name
+    return hero_name(name)
 
 def slugify(s):
     slug = unicodedata.normalize('NFKD', s)
@@ -158,6 +158,44 @@ def quality_color(quality):
 
     #if there are no matches
     return "#FFFFFF"
+
+def hero_name(name):
+    #for special cases
+    name_map = [
+    ['blood_seeker', 'Bloodseeker'],
+    ['furion', 'Nature\'s Prophet'],
+    ['drow', 'Drow Ranger'],
+    ['antimage', 'Anti-Mage'],
+    ['lanaya', 'Templar Assassin'],
+    ['tuskarr', 'Tusk'],
+    ['centaur', 'Centaur Warrunner'],
+    ['rikimaru', 'Riki'],
+    ['shadowshaman', 'Shadow Shaman'],
+    ['skeleton_king', 'Wraith King'],
+    ['nerubian_assassin', 'Nyx Assassin'],
+    ['obsidian_destroyer', 'Outworld Devourer'],
+    ['windrunner', 'Windranger'],
+    ['siren', 'Naga Siren'],
+    ['queenofpain', 'Queen of Pain'],
+    ['necrolyte', 'Necrophos']
+    ]
+
+    for nm in name_map:
+        if nm[0] == name:
+            return nm[1]
+
+    #otherwise just capitalize the name and switch underscores
+    n = ''
+    #for each word
+    for s in name.split('_'):
+        #capitalize
+        s[0] = s[0] - 32
+        n = n + ' ' + s
+
+    #strip left space
+    n.lstrip(' ')
+
+    return n
 
 def init_db():
     Item.metadata.create_all(bind=engine)
