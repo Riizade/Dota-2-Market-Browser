@@ -5,6 +5,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from BeautifulSoup import BeautifulSoup
 import httplib2
+import re
+import os
 
 #------------------------------------------------------------------------------
 # Setup
@@ -29,8 +31,39 @@ class Item(Base):
     item_slot = Column(String)
     hero = Column(String)
 
-#create 'items' table
-Item.metadata.create_all(bind=engine)
+#gets items from the dota 2 schema
+def get_items():
+    #DEBUG for working from file
+    items = json.load(open('dota2_schema.json', 'r'))
+
+    session = SessionInstance()
+
+    for i in items['result']['items']:
+        session.add(Item(name=i['name'], item_type=i['item_class'], 
+            item_slot=i['item_type_name'], image_url_large=i['image_url_large'],
+            image_url_small=i['image_url'], hero=get_hero(i['image_url'])))
+        session.commit()
+
+    session.close()
+
+def get_hero(image_url):
+    search = re.search('(?<=icons/econ/items/)\w+', image_url)
+    if (search):
+        name = search.group(0)
+    else:
+        name = 'None'
+
+    return name
+
+def init_db():
+    Item.metadata.create_all(bind=engine)
+    get_items()
+    cur_page = 0
+    #do-while Python
+    while True:
+        cur_page = update_items(cur_page)
+        if cur_page == 0:
+            break
 
 #usage:
 #takes a starting page (set of 100 items)
@@ -66,12 +99,12 @@ def update_items(current_page):
     session = SessionInstance()
 
     for i in soup.findAll('a'):
-        quantity = int(i.div.div.span.span.contents[0].strip('\n\r '))
-        price = float(i.div.div.span.contents[6].strip('\n\r '))
         name = i.div.contents[5].span.contents[0].strip('\n\r ')
 
+        tmp_item = session.query(Item).filter(Item.name==name)
         #update item in database
-        session.add(Item(name=name, price=price, quantity=quantity))
+        tmp_item.quantity = int(i.div.div.span.span.contents[0].strip('\n\r '))
+        tmp_item.price = float(i.div.div.span.contents[6].strip('\n\r '))
         session.commit()
 
     if (current_page + item_count >= int(request['total_count'])):
@@ -87,9 +120,6 @@ def update_items(current_page):
 #------------------------------------------------------------------------------
 # URL Routing
 #------------------------------------------------------------------------------
-#the number of the last item loaded from the market
-
-update_items(0)
 
 @app.route('/')
 def _():
@@ -107,3 +137,4 @@ def market():
 # Script Logic
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
+init_db()

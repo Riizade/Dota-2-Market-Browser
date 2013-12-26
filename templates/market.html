@@ -12,11 +12,11 @@
     <span class="item_name">{{item.name}}</span>
     <span class="item_price">{{item.price}}</span>
     <span class="item_quantity">{{item.quantity}}</span>
-    <span class="item_set">Set</span>
-    <span class="item_type">Type</span>
-    <span class="item_slot">Slot</span>
-    <span class="item_hero">Hero</span>
-    <div class="item_image_crop"><img class="item_image" src="{{url_for('static',filename="assets/css/test_item.png")}}"></div>
+    <span class="item_set">{{item.set}}</span>
+    <span class="item_type">{{item.item_type}}</span>
+    <span class="item_slot">{{item.item_slot}}</span>
+    <span class="item_hero">{{item.hero}}</span>
+    <div class="item_image_crop"><img class="item_image" src="{{item.image_url_small}}"></div>
     <a href="http://www.google.com"><span class="span_link"></span></a>
     </div>
     {% endfor %}
