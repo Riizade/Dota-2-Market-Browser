@@ -45,6 +45,7 @@ class Market_Item(Base):
     price = Column(Float)
     quality = Column(Integer)
     quality_color = Column(String)
+    market_link = Column(String)
 
 #gets items from the dota 2 schema
 def get_items():
@@ -120,6 +121,28 @@ def parse_item_slot(item):
         else:
             return 'None'
 
+def parse_quality(name):
+    if re.search('Inscribed', name):
+        return 'Inscribed'
+    elif re.search('Heroic', name):
+        return 'Heroic'
+    elif re.search('Genuine', name):
+        return 'Genuine'
+    elif re.search('Cursed', name):
+        return 'Cursed'
+    elif re.search('Corrupted', name):
+        return 'Corrupted'
+    elif re.search('Unusual', name):
+        return 'Unusual'
+    elif re.search('Elder', name):
+        return 'Elder'
+    elif re.search('Self-Made', name):
+        return 'Self-Made'
+    elif re.search('Frozen', name):
+        return 'Frozen'
+    else:
+        return 'Normal'
+
 def quality_color(quality):
     if (quality == 'Frozen'):
         return "#4983B3"
@@ -129,11 +152,11 @@ def quality_color(quality):
         return "#8650AC"
     elif (quality == 'Genuine'):
         return "#4D7455"
-    elif (quality == 'Unusual' or quality == 'Heroic')
+    elif (quality == 'Unusual' or quality == 'Heroic'):
         return "#8650AC"
-    elif (quality == 'Elder')
+    elif (quality == 'Elder'):
         return "#476291"
-    elif (quality == 'Self-Made')
+    elif (quality == 'Self-Made'):
         return "#70B04A"
     else:
         return "#FFFFFF"
@@ -168,26 +191,27 @@ def update_items(current_page):
     content = request['results_html']
     soup = BeautifulSoup(content)
 
-    #replace individual characters to clean up the HTML
-    temp_str = soup.prettify()
-    #remove \r, \n, \t, &gt, &lt, ;, \/span, \/div, \/a, }, &#36, USD, , (yes, the comma)
-    temp_str = temp_str.replace('\\r', '').replace('\\n', '').replace('\\t', '')
-    temp_str = temp_str.replace('&gt', '').replace('&lt', '').replace(';', '')
-    temp_str = temp_str.replace('\\/span', '').replace('\\/div', '').replace('\\/a', '')
-    temp_str = temp_str.replace('&#36', '').replace('}', '').replace('USD', '').replace(',', '')
-
-    soup = BeautifulSoup(temp_str)
-
     #create sql session to add items to the database
     session = SessionInstance()
 
     for i in soup.findAll('a'):
-        name_slug = slugify(i.div.contents[5].span.contents[0].strip('\n\r '))
+        name = i.div.contents[5].span.contents[0].strip('\n\r ')
+        name_slug = slugify(name)
+        quantity = int(i.div.div.span.span.contents[0].strip('\n\r '))
+        price = float(i.div.div.span.contents[6].strip('\n\r '))
+        market_link = i['href']
+        quality = parse_quality(name)
+        quality_color = quality_color(quality)
 
-        tmp_item = session.query(Item).filter(Item.name_slug==name_slug)
-        #update item in database
-        tmp_item.quantity = int(i.div.div.span.span.contents[0].strip('\n\r '))
-        tmp_item.price = float(i.div.div.span.contents[6].strip('\n\r '))
+
+        try:
+            tmp_item = session.query(Item).filter(Item.name_slug==name_slug)
+            #update item in database
+            tmp_item.quantity = quantity
+            tmp_item.price = price
+
+        except ValueError:
+
         session.commit()
 
     if (current_page + item_count >= int(request['total_count'])):
