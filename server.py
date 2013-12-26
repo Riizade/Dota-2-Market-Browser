@@ -121,18 +121,22 @@ def parse_item_slot(item):
             return 'None'
 
 def quality_color(quality):
-    if (quality == 1):
-        return "#FF00FF"
-    elif (quality == 2):
-        return "#00FF00"
-    elif (quality == 3):
-        return "#0000FF"
-    elif (quality == 4):
-        return "#FFFFFF"
+    if (quality == 'Frozen'):
+        return "#4983B3"
+    elif (quality == 'Corrupted'):
+        return "#A32C2E"
+    elif (quality == 'Cursed'):
+        return "#8650AC"
+    elif (quality == 'Genuine'):
+        return "#4D7455"
+    elif (quality == 'Unusual' or quality == 'Heroic')
+        return "#8650AC"
+    elif (quality == 'Elder')
+        return "#476291"
+    elif (quality == 'Self-Made')
+        return "#70B04A"
     else:
-        return "#FF0000"
-
-    print ("Item quality" + quality)
+        return "#FFFFFF"
 
 def init_db():
     Item.metadata.create_all(bind=engine)
