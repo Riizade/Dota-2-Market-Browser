@@ -155,7 +155,7 @@ def quality_color(quality):
     for qm in quality_map:
         if quality == qm[0]:
             return qm[1]
-            
+
     #if there are no matches
     return "#FFFFFF"
 
@@ -204,6 +204,7 @@ def update_items(current_page):
         quality_color = quality_color(quality)
 
 
+        #if the item exists already
         try:
             tmp_item = session.query(MarketItem).filter(MarketItem.name==name)
             #update item in database
@@ -215,6 +216,7 @@ def update_items(current_page):
             tmp_item.quality = quality
             tmp_item.quality_color = quality_color
 
+        #if the item does not exist already
         except ValueError:
             session.add(MarketItem(name=name, name_slug=name_slug, quantity=quantity,
                         price=price, market_link=market_link, quality=quality,
