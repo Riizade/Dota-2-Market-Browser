@@ -16,6 +16,9 @@ import unicodedata
 
 app = Flask(__name__)
 
+#DEBUG remove database every time
+os.remove('items.db')
+
 engine = create_engine('sqlite:///items.db', echo=True)
 Base = declarative_base()
 SessionInstance = sessionmaker(bind=engine)
@@ -26,14 +29,22 @@ class Item(Base):
     defindex = Column(Integer, primary_key=True)
     name_slug = Column(String)
     name = Column(String)
-    quantity = Column(Integer)
-    price = Column(Float)
     set = Column(String)
     image_url_large = Column(String)
     image_url_small = Column(String)
     item_type = Column(String)
     item_slot = Column(String)
     hero = Column(String)
+
+class Market_Item(Base):
+    __tablename__ = 'market_items'
+
+    name = Column(String, primary_key=True)
+    name_slug = Column(String)
+    quantity = Column(Integer)
+    price = Column(Float)
+    quality = Column(Integer)
+    quality_color = Column(String)
 
 #gets items from the dota 2 schema
 def get_items():
@@ -54,10 +65,15 @@ def get_items():
             with open('./static/assets/images/' + slugify(i['name']) + '.png', 'w+') as f:
                 f.write(content)
 
-        session.add(Item(name_slug=slugify(i['name']), item_type=i['item_class'], 
-            item_slot=i['item_type_name'], image_url_large=i['image_url_large'],
-            image_url_small=i['image_url'], hero=get_hero(i['image_url']),
-            name=i['name'], defindex=i['defindex']))
+        session.add(Item(
+                    name_slug=slugify(i['name']), 
+                    item_type=parse_item_type(i), 
+                    item_slot=parse_item_slot(i), 
+                    image_url_large=i['image_url_large'],
+                    image_url_small=i['image_url'], 
+                    hero=get_hero(i['image_url']),
+                    name=i['name'],
+                    defindex=i['defindex']))
 
     session.commit()
     session.close()
@@ -78,6 +94,45 @@ def slugify(s):
     slug = re.sub(r'[-]+', '-', slug)
 
     return slug
+
+def parse_item_type(item):
+    if (item['item_class'] == 'dota_item_wearable'):
+        item_type = 'Equipment'
+    elif (item['item_class'] == 'tool'):
+        try:
+            item_type = item['tool']['type']
+        except KeyError:
+            item_type = item['attributes'][0]['name']
+    elif (item['item_class'] == 'supply_crate'):
+        item_type = 'Treasure Chest'
+    else:
+        item_type = 'Unknown'
+
+    return item_type
+
+def parse_item_slot(item):
+    if (not item['item_class'] == 'dota_item_wearable'):
+        return 'None'
+    else:
+        search = re.search('(?<=DOTA_WearableType_)\w+', item['item_type_name'])
+        if (search):
+            return search.group(0)
+        else:
+            return 'None'
+
+def quality_color(quality):
+    if (quality == 1):
+        return "#FF00FF"
+    elif (quality == 2):
+        return "#00FF00"
+    elif (quality == 3):
+        return "#0000FF"
+    elif (quality == 4):
+        return "#FFFFFF"
+    else:
+        return "#FF0000"
+
+    print ("Item quality" + quality)
 
 def init_db():
     Item.metadata.create_all(bind=engine)
