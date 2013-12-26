@@ -5,3 +5,4 @@
 - Implement paging to save bandwidth
 - Have div URLs redirect to the SteamCommunity store page
 - Find and parse hex colors for Cursed items
+- Give MarketItems a many-to-one relationship with Items
