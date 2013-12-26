@@ -1,3 +1,6 @@
 - Implement updating database continuously/periodically
 - Account for Inscribed/Autographed items in the database schema
-- Implment logging for important events
+- Implement logging for important events
+- Possibly store resized versions of images to save on bandwidth
+- Implement paging to save bandwidth
+- Have div URLs redirect to the SteamCommunity store page
