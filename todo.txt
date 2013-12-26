@@ -1,0 +1,3 @@
+- Implement updating database continuously/periodically
+- Account for Inscribed/Autographed items in the database schema
+- Implment logging for important events
