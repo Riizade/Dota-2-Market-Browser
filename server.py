@@ -7,6 +7,8 @@ from BeautifulSoup import BeautifulSoup
 import httplib2
 import re
 import os
+import os.path
+import unicodedata
 
 #------------------------------------------------------------------------------
 # Setup
@@ -21,7 +23,9 @@ SessionInstance = sessionmaker(bind=engine)
 class Item(Base):
     __tablename__ = 'items'
 
-    name = Column(String, primary_key=True)
+    defindex = Column(Integer, primary_key=True)
+    name_slug = Column(String)
+    name = Column(String)
     quantity = Column(Integer)
     price = Column(Float)
     set = Column(String)
@@ -39,11 +43,23 @@ def get_items():
     session = SessionInstance()
 
     for i in items['result']['items']:
-        session.add(Item(name=i['name'], item_type=i['item_class'], 
-            item_slot=i['item_type_name'], image_url_large=i['image_url_large'],
-            image_url_small=i['image_url'], hero=get_hero(i['image_url'])))
-        session.commit()
+        if (i['defindex'] < 900):
+            print('Skipping default item')
+            continue
 
+        #get image if it doesn't exist
+        if not os.path.exists('./static/assets/images/' + slugify(i['name']) + '.png'):
+            resp, content = httplib2.Http().request(i['image_url_large'])
+            #save small image
+            with open('./static/assets/images/' + slugify(i['name']) + '.png', 'w+') as f:
+                f.write(content)
+
+        session.add(Item(name_slug=slugify(i['name']), item_type=i['item_class'], 
+            item_slot=i['item_type_name'], image_url_large=i['image_url_large'],
+            image_url_small=i['image_url'], hero=get_hero(i['image_url']),
+            name=i['name'], defindex=i['defindex']))
+
+    session.commit()
     session.close()
 
 def get_hero(image_url):
@@ -54,6 +70,14 @@ def get_hero(image_url):
         name = 'None'
 
     return name
+
+def slugify(s):
+    slug = unicodedata.normalize('NFKD', s)
+    slug = slug.encode('ascii', 'ignore').lower()
+    slug = re.sub(r'[^a-z0-9]+', '-', slug)
+    slug = re.sub(r'[-]+', '-', slug)
+
+    return slug
 
 def init_db():
     Item.metadata.create_all(bind=engine)
@@ -99,9 +123,9 @@ def update_items(current_page):
     session = SessionInstance()
 
     for i in soup.findAll('a'):
-        name = i.div.contents[5].span.contents[0].strip('\n\r ')
+        name_slug = slugify(i.div.contents[5].span.contents[0].strip('\n\r '))
 
-        tmp_item = session.query(Item).filter(Item.name==name)
+        tmp_item = session.query(Item).filter(Item.name_slug==name_slug)
         #update item in database
         tmp_item.quantity = int(i.div.div.span.span.contents[0].strip('\n\r '))
         tmp_item.price = float(i.div.div.span.contents[6].strip('\n\r '))
