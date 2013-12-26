@@ -1,5 +1,12 @@
 # temp files
 workfile.html
+sqlalchemy_test.py
+
+#images
+static/assets/images/
+
+#database
+items.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
