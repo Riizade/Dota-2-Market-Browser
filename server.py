@@ -46,6 +46,7 @@ class MarketItem(Base):
     quality = Column(Integer)
     quality_color = Column(String)
     market_link = Column(String)
+    base_defindex = Column(Integer)
 
 #gets items from the dota 2 schema
 def get_items():
@@ -142,7 +143,7 @@ def parse_quality(name):
         if (re.search(quality, name)):
             return quality
        
-    #return 'Normal' if no quality matches 
+    # return 'Normal' if no quality matches 
     return 'Normal'
 
 def colorize(quality):
@@ -156,7 +157,10 @@ def colorize(quality):
     ['Heroic', '#8650AC'],
     ['Elder', '#476291'],
     ['Self-Made', '#70B04A'],
-    ['Inscribed', '#FFFFFF']]
+    # colors unknown
+    ['Inscribed', '#FFFFFF'],
+    ['Autographed', '#FFFFFF']
+    ]
     
     for qm in quality_map:
         if quality == qm[0]:
@@ -187,6 +191,7 @@ def hero_name(name):
     ['witchdoctor', 'Witch Doctor']
     ]
 
+    #for the general case
     for nm in name_map:
         if nm[0] == name:
             return nm[1]
@@ -204,6 +209,23 @@ def properfy(string):
     n = n.strip(' ')
 
     return n
+
+#returns the name of the base item (no quality)
+def basify(name):
+    qualities =['Inscribed',
+            'Heroic',
+            'Genuine',
+            'Cursed',
+            'Corrupted',
+            'Unusual',
+            'Elder',
+            'Frozen',
+            'Self-Made',
+            'Autographed']
+    for quality in qualities:
+        if (re.search(quality, name)):
+            return re.search('(?>='+quality+' ).*', string).group(0)
+
 
 
 def init_db():
@@ -223,7 +245,9 @@ def init_db():
 #returns the starting page to be used for the next call to ensure that there
 #are no duplicates and that the function doesn't ask for more items than exist
 def update_items(current_page):
+
     item_count = 100
+    print('Updating items from '+str(current_page)+' to '+str(current_page+item_count))
 
     #get 100 items from Dota 2 Community Market
     #resp, content = httplib2.Http().request(
@@ -243,12 +267,13 @@ def update_items(current_page):
 
     for i in soup.findAll('a'):
         name = i.div.contents[5].span.contents[0].strip('\n\r ')
-        name_slug = slugify(name)
+        name_slug = slugify(basify(name))
         quantity = int(i.div.div.span.span.contents[0].strip('\n\r ').replace(',',''))
         price = float(i.div.div.span.contents[6].replace('&#36;','').replace('USD','').strip('\n\r '))
         market_link = i['href']
         quality = parse_quality(name)
         quality_color = colorize(quality)
+        base_defindex = session.query(Item).filter(Item.name_slug==name_slug).defindex
 
 
         #if the item exists already
@@ -264,6 +289,7 @@ def update_items(current_page):
             tmp_item.quality_color = quality_color
 
         #if the item does not exist already
+        #TODO not sure what the exception is for not found in db
         except ValueError:
             session.add(MarketItem(name=name, name_slug=name_slug, quantity=quantity,
                         price=price, market_link=market_link, quality=quality,
