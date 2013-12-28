@@ -10,17 +10,15 @@ import os.path
 import unicodedata
 import logging
 import time
-
-#DEBUG remove database every time
-if os.path.exists('items.db'):
-    os.remove('items.db')
-if os.path.exists('log.log'):
-    os.remove('log.log')
+from wand.image import Image
 
 engine = create_engine('sqlite:///items.db', echo=False)
 Base = declarative_base()
 SessionInstance = sessionmaker(bind=engine)
-logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',filename='log.log', level=logging.DEBUG)
+logging.basicConfig(
+        format='%(asctime)s %(levelname)s: %(message)s',
+        filename='server-'+time.strftime('%Y-%m-%d_%H:%M:%S',time.gmtime())+'.log', 
+        level=logging.DEBUG)
 sqlalchemy_log = logging.getLogger("sqlalchemy")
 sqlalchemy_log.setLevel(logging.ERROR)
 sqlalchemy_log.propagate = True
@@ -67,23 +65,21 @@ def get_items():
         if (i['defindex'] < 900):
             continue
 
-        download_image(i['name']+' large', i['image_url_large'])
-
         try:
             item_set = properfy('_'.join(i['item_set'].split('_')[1:]))
         except KeyError:
             item_set = 'None'
 
-        session.add(Item(
-                    name_slug=slugify(i['name']), 
-                    item_type=parse_item_type(i), 
-                    item_slot=parse_item_slot(i), 
-                    item_set=item_set,
-                    image_url_large=i['image_url_large'],
-                    image_url_small=i['image_url'], 
-                    hero=get_hero(i['image_url']),
-                    name=i['name'],
-                    defindex=i['defindex']))
+        upsert(Item(
+                name_slug=slugify(i['name']), 
+                item_type=parse_item_type(i), 
+                item_slot=parse_item_slot(i), 
+                item_set=item_set,
+                image_url_large=i['image_url_large'],
+                image_url_small=i['image_url'], 
+                hero=get_hero(i['image_url']),
+                name=i['name'],
+                defindex=i['defindex']))
 
     session.commit()
     session.close()
@@ -97,16 +93,20 @@ def get_hero(image_url):
 
     return hero_name(name)
 
-
 #downloads the item image if it doesn't exist
 def download_image(name, url):
     if not os.path.exists('./static/assets/images/' + slugify(name) + '.png'):
         logging.info('Downloading image for '+name)
-        logging.debug('Image for '+name+' is at url '+url)
         resp, content = httplib2.Http().request(url)
-        #save small image
-        with open('./static/assets/images/' + slugify(name) + '.png', 'w+') as f:
-            f.write(content)
+        soup = BeautifulSoup(content)
+
+        img_url = soup.find("div", { "class" : "market_listing_largeimage" }).img['src']
+        logging.debug('Image for '+name+' is at url '+img_url)
+        resp, content = httplib2.Http().request(img_url)
+
+        with Image(blob=content) as img:
+            img.crop(4, 64, 352+4, 232+64)
+            img.save(filename='./static/assets/images/' + slugify(name) + '.png')
 
 def slugify(s):
     slug = unicodedata.normalize('NFKD', s)
@@ -170,8 +170,8 @@ def colorize(quality):
     ['Heroic', '#8650AC'],
     ['Elder', '#476291'],
     ['Self-Made', '#70B04A'],
+    ['Inscribed', '#CF6632'],
     # colors unknown
-    ['Inscribed', '#FFFFFF'],
     ['Autographed', '#FFFFFF']
     ]
     
@@ -242,6 +242,57 @@ def basify(name):
 
     return name
 
+def upsert(item):
+
+    session = SessionInstance()
+
+    if item is MarketItem:
+        #if the item exists already
+        try:
+            tmp_item = session.query(MarketItem).filter(MarketItem.name==item.name)[0]
+            #update item in database
+            logging.debug('Updating market item: '+name)
+            tmp_item.name = item.name
+            tmp_item.quantity = item.quantity
+            tmp_item.price = item.price
+            tmp_item.name_slug = item.name_slug
+            tmp_item.market_link = item.market_link
+            tmp_item.quality = item.quality
+            tmp_item.quality_color = item.quality_color
+            tmp_item.item_set = item.item_set
+            tmp_item.image_url_large = item.image_url_large
+            tmp_item.image_url_small = item.image_url_small
+            tmp_item.image_url_tiny = item.image_url_tiny
+            tmp_item.item_type = item.base_item.item_type
+            tmp_item.item_slot = item.base_item.item_slot
+            tmp_item.hero = item.base_item.hero
+
+        #if the item does not exist already
+        except IndexError:
+            logging.debug('Adding new market item: '+item.name)
+            session.add(item)
+
+    elif item is Item:
+        try:
+            tmp_item = session.query(Item).filter(Item.defindex==item.defindex)[0]
+            logging.debug('Updating base item: '+name)
+            tmp_item.name = item.name
+            tmp_item.name_slug = item.name_slug
+            tmp_item.item_set = item.item_set
+            tmp_item.image_url_large = item.image_url_large
+            tmp_item.image_url_small = item.image_url_small
+            tmp_item.item_type = item.item_type
+            tmp_item.item_slot = item.item_slot
+            tmp_item.hero = item.hero
+            tmp_item.defindex = item.defindex
+
+        except IndexError:
+            logging.debug('Adding new base item: '+item.name)
+            session.add(item)
+
+
+    session.commit()
+    session.close()
 
 
 def init_db():
@@ -289,10 +340,9 @@ def update_items(current_page):
         quantity = int(i.div.div.span.span.contents[0].strip('\n\r ').replace(',',''))
         price = float(i.div.div.span.contents[6].replace('&#36;','').replace('USD','').strip('\n\r '))
         market_link = i['href']
-        img_url_tiny = i.img['src']
+        image_url_tiny = i.img['src']
         quality = parse_quality(name)
         quality_color = colorize(quality)
-        download_image(name, i.img['src'])
         
         try:
             base_item = session.query(Item).filter(Item.name_slug==name_slug)[0]
@@ -314,39 +364,23 @@ def update_items(current_page):
         hero = base_item.hero
 
 
-        #if the item exists already
-        try:
-            tmp_item = session.query(MarketItem).filter(MarketItem.name==name)[0]
-            #update item in database
-            logging.debug('Updating market item: '+name)
-            tmp_item.name = name
-            tmp_item.quantity = quantity
-            tmp_item.price = price
-            tmp_item.name_slug = name_slug
-            tmp_item.market_link = market_link
-            tmp_item.quality = quality
-            tmp_item.quality_color = quality_color
-            tmp_item.item_set = base_item.item_set
-            tmp_item.image_url_large = base_item.image_url_large
-            tmp_item.image_url_small = base_item.image_url_small
-            tmp_item.image_url_tiny = image_url_tiny
-            tmp_item.item_type = base_item.item_type
-            tmp_item.item_slot = base_item.item_slot
-            tmp_item.hero = base_item.hero
+        upsert(MarketItem(
+                name=name,
+                name_slug=name_slug,
+                quantity=quantity,
+                price=price,
+                market_link=market_link,
+                image_url_tiny=image_url_tiny,
+                image_url_small=image_url_small,
+                image_url_large=image_url_large,
+                quality=quality,
+                quality_color=quality_color,
+                item_set=item_set,
+                item_type=item_type,
+                item_slot=item_slot,
+                hero=hero))
 
-        #if the item does not exist already
-        #TODO not sure what the exception is for not found in db
-        except IndexError:
-            logging.debug('Adding new market item: '+name)
-            session.add(MarketItem(name=name, name_slug=name_slug, quantity=quantity,
-                        price=price, market_link=market_link, quality=quality,
-                        quality_color=quality_color, item_set=item_set,
-                        image_url_small=image_url_small, image_url_large=image_url_large,
-                        image_url_tiny=image_url_tiny,
-                        item_type=item_type, item_slot=item_slot, hero=hero))
-
-
-        session.commit()
+        download_image(name, market_link)
 
     if (current_page + item_count >= int(request['total_count'])):
         current_page = 0
