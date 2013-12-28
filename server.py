@@ -71,12 +71,7 @@ def get_items():
         if (i['defindex'] < 900):
             continue
 
-        #get image if it doesn't exist
-        if not os.path.exists('./static/assets/images/' + slugify(i['name']) + '.png'):
-            resp, content = httplib2.Http().request(i['image_url_large'])
-            #save small image
-            with open('./static/assets/images/' + slugify(i['name']) + '.png', 'w+') as f:
-                f.write(content)
+        get_image(i['name'], i['image_url_large'])
 
         try:
             item_set = properfy('_'.join(i['item_set'].split('_')[1:]))
@@ -105,6 +100,15 @@ def get_hero(image_url):
         name = 'None'
 
     return hero_name(name)
+
+
+#downloads the item image if it doesn't exist
+def get_image(name, url):
+    if not os.path.exists('./static/assets/images/' + slugify(name) + '.png'):
+        resp, content = httplib2.Http().request(url)
+        #save small image
+        with open('./static/assets/images/' + slugify(name) + '.png', 'w+') as f:
+            f.write(content)
 
 def slugify(s):
     slug = unicodedata.normalize('NFKD', s)
@@ -293,7 +297,17 @@ def update_items(current_page):
             base_item = session.query(Item).filter(Item.name_slug==name_slug)[0]
         except IndexError:
             logging.warning(name+' has no base item')
-            base_item = Item()
+            base_item = Item(
+                    name_slug=slugify(i['name']), 
+                    item_type=parse_item_type(name), 
+                    item_slot=parse_item_slot(name), 
+                    item_set='None',
+                    image_url_large=i.img['src'],
+                    image_url_small=i.img['src'], 
+                    hero='None',
+                    name=name))
+            download_image(name, i.img['src'])
+
         item_set = base_item.item_set
         image_url_large = base_item.image_url_large
         image_url_small = base_item.image_url_small
