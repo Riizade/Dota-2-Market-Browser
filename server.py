@@ -19,8 +19,6 @@ def _():
 def market():
     session = SessionInstance()
     logging.info('Market page accessed')
-    logging.debug('Market items returned:')
-    logging.debug(session.query(MarketItem).all())
     results = session.query(MarketItem).all()
     session.close()
     return render_template("market.html", items=results)
