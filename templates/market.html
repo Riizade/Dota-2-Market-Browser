@@ -17,7 +17,7 @@
     <span class="item_slot">Slot:<br />{{item.item_slot}}</span>
     <span class="item_hero">Hero:<br />{{item.hero}}</span>
     <div class="item_image_crop"><img class="item_image" src="{{url_for('static',filename="assets/images/" + item.name_slug + ".png")}}"></div>
-    <a href="http://www.google.com"><span class="span_link"></span></a>
+    <a href="{{item.market_link}}"><span class="span_link"></span></a>
     </div>
     {% endfor %}
 
