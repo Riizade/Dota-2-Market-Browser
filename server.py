@@ -338,7 +338,7 @@ def update_items(current_page):
         #if the item does not exist already
         #TODO not sure what the exception is for not found in db
         except IndexError:
-            logging.debug('Adding market item: '+name)
+            logging.debug('Adding new market item: '+name)
             session.add(MarketItem(name=name, name_slug=name_slug, quantity=quantity,
                         price=price, market_link=market_link, quality=quality,
                         quality_color=quality_color, item_set=item_set,
@@ -369,6 +369,7 @@ def _():
 @app.route('/market/')
 def market():
     session = SessionInstance()
+    logging.info('Market page accessed')
     logging.debug('Market items returned:')
     logging.debug(session.query(MarketItem).all())
     items = session.query(MarketItem).all()
