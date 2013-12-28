@@ -9,6 +9,7 @@ import re
 import os
 import os.path
 import unicodedata
+import logging
 
 #------------------------------------------------------------------------------
 # Setup
@@ -17,12 +18,18 @@ import unicodedata
 app = Flask(__name__)
 
 #DEBUG remove database every time
-os.remove('items.db')
+if os.path.exists('items.db'):
+    os.remove('items.db')
+if os.path.exists('log.log'):
+    os.remove('log.log')
 
-engine = create_engine('sqlite:///items.db', echo=True)
+engine = create_engine('sqlite:///items.db', echo=False)
 Base = declarative_base()
 SessionInstance = sessionmaker(bind=engine)
-
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',filename='log.log', level=logging.DEBUG)
+sqlalchemy_log = logging.getLogger("sqlalchemy")
+sqlalchemy_log.setLevel(logging.ERROR)
+sqlalchemy_log.propagate = True
 class Item(Base):
     __tablename__ = 'items'
 
@@ -46,7 +53,12 @@ class MarketItem(Base):
     quality = Column(Integer)
     quality_color = Column(String)
     market_link = Column(String)
-    base_defindex = Column(Integer)
+    item_set = Column(String)
+    image_url_large = Column(String)
+    image_url_small = Column(String)
+    item_type = Column(String)
+    item_slot = Column(String)
+    hero = Column(String)
 
 #gets items from the dota 2 schema
 def get_items():
@@ -57,7 +69,6 @@ def get_items():
 
     for i in items['result']['items']:
         if (i['defindex'] < 900):
-            print('Skipping default item')
             continue
 
         #get image if it doesn't exist
@@ -140,7 +151,7 @@ def parse_quality(name):
                 'Self-Made',
                 'Autographed']
     for quality in qualities:
-        if (re.search(quality, name)):
+        if (re.match(quality, name)):
             return quality
        
     # return 'Normal' if no quality matches 
@@ -222,13 +233,17 @@ def basify(name):
             'Frozen',
             'Self-Made',
             'Autographed']
+
     for quality in qualities:
-        if (re.search(quality, name)):
-            return re.search('(?>='+quality+' ).*', string).group(0)
+        if (re.match(quality, name)):
+            return (' ').join(name.split(' ')[1:])
+
+    return name
 
 
 
 def init_db():
+    logging.info('Initialiazing database')
     Item.metadata.create_all(bind=engine)
     MarketItem.metadata.create_all(bind=engine)
 
@@ -247,7 +262,7 @@ def init_db():
 def update_items(current_page):
 
     item_count = 100
-    print('Updating items from '+str(current_page)+' to '+str(current_page+item_count))
+    logging.info('Updating items from '+str(current_page)+' to '+str(current_page+item_count))
 
     #get 100 items from Dota 2 Community Market
     #resp, content = httplib2.Http().request(
@@ -273,13 +288,25 @@ def update_items(current_page):
         market_link = i['href']
         quality = parse_quality(name)
         quality_color = colorize(quality)
-        base_defindex = session.query(Item).filter(Item.name_slug==name_slug).defindex
+        
+        try:
+            base_item = session.query(Item).filter(Item.name_slug==name_slug)[0]
+        except IndexError:
+            logging.warning(name+' has no base item')
+            base_item = Item()
+        item_set = base_item.item_set
+        image_url_large = base_item.image_url_large
+        image_url_small = base_item.image_url_small
+        item_type = base_item.item_type
+        item_slot = base_item.item_slot
+        hero = base_item.hero
 
 
         #if the item exists already
         try:
-            tmp_item = session.query(MarketItem).filter(MarketItem.name==name)
+            tmp_item = session.query(MarketItem).filter(MarketItem.name==name)[0]
             #update item in database
+            logging.debug('Updating market item: '+name)
             tmp_item.name = name
             tmp_item.quantity = quantity
             tmp_item.price = price
@@ -287,13 +314,22 @@ def update_items(current_page):
             tmp_item.market_link = market_link
             tmp_item.quality = quality
             tmp_item.quality_color = quality_color
+            tmp_item.item_set = base_item.item_set
+            tmp_item.image_url_large = base_item.image_url_large
+            tmp_item.image_url_small = base_item.image_url_small
+            tmp_item.item_type = base_item.item_type
+            tmp_item.item_slot = base_item.item_slot
+            tmp_item.hero = base_item.hero
 
         #if the item does not exist already
         #TODO not sure what the exception is for not found in db
-        except ValueError:
+        except IndexError:
+            logging.debug('Adding market item: '+name)
             session.add(MarketItem(name=name, name_slug=name_slug, quantity=quantity,
                         price=price, market_link=market_link, quality=quality,
-                        quality_color=quality_color))
+                        quality_color=quality_color, item_set=item_set,
+                        image_url_small=image_url_small, image_url_large=image_url_large,
+                        item_type=item_type, item_slot=item_slot, hero=hero))
 
 
         session.commit()
@@ -319,7 +355,9 @@ def _():
 @app.route('/market/')
 def market():
     session = SessionInstance()
-    items = session.query(Item).all()
+    logging.debug('Market items returned:')
+    logging.debug(session.query(MarketItem).all())
+    items = session.query(MarketItem).all()
     session.close()
     return render_template("market.html", items=items)
 
