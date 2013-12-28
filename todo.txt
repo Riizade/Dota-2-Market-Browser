@@ -6,3 +6,4 @@
 - For items with no base item, pull pictures from the market and pull item info from its name
 - Format quantity and price to use comma separators
 - Fix truncated sets '(Jewel) of the Forest', '(Gift) of the Sea'
+- Get item_type and item_slot for market items with no base item
