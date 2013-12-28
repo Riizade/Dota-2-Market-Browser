@@ -9,6 +9,7 @@ import os
 import os.path
 import unicodedata
 import logging
+import time
 
 #DEBUG remove database every time
 if os.path.exists('items.db'):
@@ -98,15 +99,13 @@ def get_hero(image_url):
 
 #downloads the item image if it doesn't exist
 def download_image(name, url):
-#DEBUG no network access
-    """ if not os.path.exists('./static/assets/images/' + slugify(name) + '.png'):
+    if not os.path.exists('./static/assets/images/' + slugify(name) + '.png'):
         logging.info('Downloading image for '+name)
         logging.debug('Image for '+name+' is at url '+url)
         resp, content = httplib2.Http().request(url)
         #save small image
         with open('./static/assets/images/' + slugify(name) + '.png', 'w+') as f:
             f.write(content)
-    """
 
 def slugify(s):
     slug = unicodedata.normalize('NFKD', s)
@@ -254,6 +253,7 @@ def init_db():
     #do-while Python
     while True:
         cur_page = update_items(cur_page)
+        time.sleep(1)
         if cur_page == 0:
             break
 
@@ -267,12 +267,12 @@ def update_items(current_page):
     logging.info('Updating items from '+str(current_page)+' to '+str(current_page+item_count))
 
     #get 100 items from Dota 2 Community Market
-    #resp, content = httplib2.Http().request(
-    #    "http://steamcommunity.com/market/search/render/?query=appid%3A570&start=" 
-    #    + str(current_page) + "&count=" + str(item_count))
+    resp, content = httplib2.Http().request(
+        "http://steamcommunity.com/market/search/render/?query=appid%3A570&start=" 
+        + str(current_page) + "&count=" + str(item_count))
 
     #DEBUG for working from file
-    content = open('workfile.html', 'r').read()
+    #content = open('workfile.html', 'r').read()
 
     request = json.loads(content)
 
