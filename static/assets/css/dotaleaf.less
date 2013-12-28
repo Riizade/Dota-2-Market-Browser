@@ -5,9 +5,9 @@
 @clr-font: #909090;
 
 @dim-item-width: 700px;
-@dim-item-height: 90px;
+@dim-item-height: 70px;
 @dim-item-img-height: @dim-item-height * 0.9;
-@dim-item-img-width: @dim-item-img-height * 1.505;
+@dim-item-img-width: @dim-item-img-height;
 
 * {
     font-family: Arial, Helvetica, sans-serif;
@@ -55,16 +55,15 @@ body {
     overflow:hidden;
     width: @dim-item-img-width;
     height: @dim-item-img-height;
-    border: 0px;
+    border: 1px;
+    border-style: solid;
     position: absolute;
     }
 
 .item_image {
-    width: 1.03 * @dim-item-img-width;
-    height: 1.05 * @dim-item-img-height;
+    width: @dim-item-img-width;
+    height: @dim-item-img-height;
     position: absolute;
-    left: -1.5%;
-    top: -2%;
 }
 
 .item_info {
@@ -84,41 +83,40 @@ body {
     .item_info;
     left: 10px;
     top: 40px;
-
 }
 
 .item_price {
     .item_info;
-    left: 10px;
-    top: 60px;
-}
-
-.item_set {
-    .item_info;
-    left: 450px;
+    left: 130px;
     top: 40px;
-
 }
+
 
 .item_type {
     .item_info;
-    left: 150px;
+    left: 250px;
     top: 40px;
 
 }
 
 .item_slot {
     .item_info;
-    left: 250px;
+    left: 370px;
     top: 40px;
 }
 
 .item_hero {
     .item_info;
-    left: 350px;
+    left: 470px;
     top: 40px;
 }
 
+.item_set {
+    .item_info;
+    left: 590px;
+    top: 40px;
+
+}
 
 .span_link {
   position:absolute; 
