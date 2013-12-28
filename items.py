@@ -51,6 +51,7 @@ class MarketItem(Base):
     item_set = Column(String)
     image_url_large = Column(String)
     image_url_small = Column(String)
+    image_url_tiny = Column(String)
     item_type = Column(String)
     item_slot = Column(String)
     hero = Column(String)
@@ -66,7 +67,7 @@ def get_items():
         if (i['defindex'] < 900):
             continue
 
-        download_image(i['name'], i['image_url_large'])
+        download_image(i['name']+' large', i['image_url_large'])
 
         try:
             item_set = properfy('_'.join(i['item_set'].split('_')[1:]))
@@ -288,8 +289,10 @@ def update_items(current_page):
         quantity = int(i.div.div.span.span.contents[0].strip('\n\r ').replace(',',''))
         price = float(i.div.div.span.contents[6].replace('&#36;','').replace('USD','').strip('\n\r '))
         market_link = i['href']
+        img_url_tiny = i.img['src']
         quality = parse_quality(name)
         quality_color = colorize(quality)
+        download_image(name, i.img['src'])
         
         try:
             base_item = session.query(Item).filter(Item.name_slug==name_slug)[0]
@@ -302,7 +305,6 @@ def update_items(current_page):
                     image_url_small=i.img['src'], 
                     hero='None',
                     name=name)
-            download_image(name, i.img['src'])
 
         item_set = base_item.item_set
         image_url_large = base_item.image_url_large
@@ -327,6 +329,7 @@ def update_items(current_page):
             tmp_item.item_set = base_item.item_set
             tmp_item.image_url_large = base_item.image_url_large
             tmp_item.image_url_small = base_item.image_url_small
+            tmp_item.image_url_tiny = image_url_tiny
             tmp_item.item_type = base_item.item_type
             tmp_item.item_slot = base_item.item_slot
             tmp_item.hero = base_item.hero
@@ -339,6 +342,7 @@ def update_items(current_page):
                         price=price, market_link=market_link, quality=quality,
                         quality_color=quality_color, item_set=item_set,
                         image_url_small=image_url_small, image_url_large=image_url_large,
+                        image_url_tiny=image_url_tiny,
                         item_type=item_type, item_slot=item_slot, hero=hero))
 
 
