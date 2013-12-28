@@ -17,7 +17,7 @@ Base = declarative_base()
 SessionInstance = sessionmaker(bind=engine)
 logging.basicConfig(
         format='%(asctime)s %(levelname)s: %(message)s',
-        filename='server-'+time.strftime('%Y-%m-%d_%H:%M:%S',time.gmtime())+'.log', 
+        filename='./logs/server-'+time.strftime('%Y-%m-%d_%H:%M:%S',time.gmtime())+'.log', 
         level=logging.DEBUG)
 sqlalchemy_log = logging.getLogger("sqlalchemy")
 sqlalchemy_log.setLevel(logging.ERROR)
