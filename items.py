@@ -55,7 +55,7 @@ class MarketItem(Base):
     hero = Column(String)
 
 #gets items from the dota 2 schema
-def get_items():
+def get_schema():
     #DEBUG for working from file
     items = json.load(open('dota2_schema.json', 'r'))
 
@@ -246,12 +246,12 @@ def upsert(item):
 
     session = SessionInstance()
 
-    if item is MarketItem:
+    if type(item) is MarketItem:
         #if the item exists already
         try:
             tmp_item = session.query(MarketItem).filter(MarketItem.name==item.name)[0]
             #update item in database
-            logging.debug('Updating market item: '+name)
+            logging.debug('Updating market item: '+item.name)
             tmp_item.name = item.name
             tmp_item.quantity = item.quantity
             tmp_item.price = item.price
@@ -272,10 +272,10 @@ def upsert(item):
             logging.debug('Adding new market item: '+item.name)
             session.add(item)
 
-    elif item is Item:
+    elif type(item) is Item:
         try:
             tmp_item = session.query(Item).filter(Item.defindex==item.defindex)[0]
-            logging.debug('Updating base item: '+name)
+            logging.debug('Updating base item: '+item.name)
             tmp_item.name = item.name
             tmp_item.name_slug = item.name_slug
             tmp_item.item_set = item.item_set
@@ -300,7 +300,7 @@ def init_db():
     Item.metadata.create_all(bind=engine)
     MarketItem.metadata.create_all(bind=engine)
 
-    get_items()
+    get_schema()
     cur_page = 0
     #do-while Python
     while True:
