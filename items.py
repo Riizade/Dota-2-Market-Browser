@@ -263,9 +263,9 @@ def upsert(item):
             tmp_item.image_url_large = item.image_url_large
             tmp_item.image_url_small = item.image_url_small
             tmp_item.image_url_tiny = item.image_url_tiny
-            tmp_item.item_type = item.base_item.item_type
-            tmp_item.item_slot = item.base_item.item_slot
-            tmp_item.hero = item.base_item.hero
+            tmp_item.item_type = item.item_type
+            tmp_item.item_slot = item.item_slot
+            tmp_item.hero = item.hero
 
         #if the item does not exist already
         except IndexError:
