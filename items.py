@@ -96,28 +96,35 @@ def get_hero(image_url):
 
 #downloads the item image if it doesn't exist
 def download_image(name, url):
-    if not os.path.exists('./static/assets/images/' + slugify(basify(name)) + '.png'):
-        time.sleep(1)
-        logging.info('Downloading image for '+name)
-        resp, content = httplib2.Http().request(url)
-        soup = BeautifulSoup(content)
+    count = 0
+    while count < 5:
+        count = count + 1
+        if not os.path.exists('./static/assets/images/' + slugify(basify(name)) + '.png'):
+            time.sleep(1)
+            logging.info('Downloading image for '+name)
+            resp, content = httplib2.Http().request(url)
+            soup = BeautifulSoup(content)
 
-        try:
-            img_url = soup.find("div", { "class" : "market_listing_largeimage" }).img['src']
-        except AttributeError:
-            logging.error('Item '+name+' was unable to retrieve its image')
-            return
-        logging.debug('Image for '+name+' is at url '+img_url)
-        resp, content = httplib2.Http().request(img_url)
+            try:
+                img_url = soup.find("div", { "class" : "market_listing_largeimage" }).img['src']
+            except AttributeError:
+                logging.error('Item '+name+' was unable to retrieve its image')
 
-        try:
-            with Image(blob=content) as img:
-                img.crop(4, 64, 352+4, 232+64)
-                img.save(filename='./static/assets/images/' + slugify(basify(name)) + '.png')
-        except BlobError:
-            logging.error('Item '+name+' was unable to save its image')
-            if os.path.exists('./static/assets/images/' + slugify(basify(name)) + '.png'):
-                os.remove('./static/assets/images/' + slugify(basify(name)) + '.png')
+            logging.debug('Image for '+name+' is at url '+img_url)
+            resp, content = httplib2.Http().request(img_url)
+
+            try:
+                with Image(blob=content) as img:
+                    img.crop(4, 64, 352+4, 232+64)
+                    img.save(filename='./static/assets/images/' + slugify(basify(name)) + '.png')
+                    return
+            except BlobError:
+                logging.error('Item '+name+' was unable to save its image')
+                if os.path.exists('./static/assets/images/' + slugify(basify(name)) + '.png'):
+                    os.remove('./static/assets/images/' + slugify(basify(name)) + '.png')
+        time.sleep(3)
+    if (count >= 5):
+        logging.error('Skipping image for '+name)
 
 def slugify(s):
     slug = unicodedata.normalize('NFKD', s)
@@ -390,7 +397,7 @@ def update_items(current_page):
                 item_type=item_type,
                 item_slot=item_slot,
                 hero=hero))
-
+        
         download_image(name, market_link)
 
     if (current_page + item_count >= int(request['total_count'])):
