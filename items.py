@@ -96,6 +96,7 @@ def get_hero(image_url):
 #downloads the item image if it doesn't exist
 def download_image(name, url):
     if not os.path.exists('./static/assets/images/' + slugify(name) + '.png'):
+        time.sleep(1)
         logging.info('Downloading image for '+name)
         resp, content = httplib2.Http().request(url)
         soup = BeautifulSoup(content)
