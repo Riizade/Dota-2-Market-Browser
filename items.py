@@ -96,7 +96,7 @@ def get_hero(image_url):
 
 #downloads the item image if it doesn't exist
 def download_image(name, url):
-    if not os.path.exists('./static/assets/images/' + slugify(name) + '.png'):
+    if not os.path.exists('./static/assets/images/' + slugify(basify(name)) + '.png'):
         time.sleep(1)
         logging.info('Downloading image for '+name)
         resp, content = httplib2.Http().request(url)
@@ -113,11 +113,11 @@ def download_image(name, url):
         try:
             with Image(blob=content) as img:
                 img.crop(4, 64, 352+4, 232+64)
-                img.save(filename='./static/assets/images/' + slugify(name) + '.png')
+                img.save(filename='./static/assets/images/' + slugify(basify(name)) + '.png')
         except BlobError:
             logging.error('Item '+name+' was unable to save its image')
-            if os.path.exists('./static/assets/images/' + slugify(name) + '.png'):
-                os.remove('./static/assets/images/' + slugify(name) + '.png')
+            if os.path.exists('./static/assets/images/' + slugify(basify(name)) + '.png'):
+                os.remove('./static/assets/images/' + slugify(basify(name)) + '.png')
 
 def slugify(s):
     slug = unicodedata.normalize('NFKD', s)
