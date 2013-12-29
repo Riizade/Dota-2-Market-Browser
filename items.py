@@ -11,6 +11,7 @@ import unicodedata
 import logging
 import time
 from wand.image import Image
+from wand.exceptions import BlobError
 
 engine = create_engine('sqlite:///items.db', echo=False)
 Base = declarative_base()
@@ -101,7 +102,11 @@ def download_image(name, url):
         resp, content = httplib2.Http().request(url)
         soup = BeautifulSoup(content)
 
-        img_url = soup.find("div", { "class" : "market_listing_largeimage" }).img['src']
+        try:
+            img_url = soup.find("div", { "class" : "market_listing_largeimage" }).img['src']
+        except AttributeError:
+            logging.error('Item '+name+' was unable to retrieve its image')
+            return
         logging.debug('Image for '+name+' is at url '+img_url)
         resp, content = httplib2.Http().request(img_url)
 
@@ -109,8 +114,8 @@ def download_image(name, url):
             with Image(blob=content) as img:
                 img.crop(4, 64, 352+4, 232+64)
                 img.save(filename='./static/assets/images/' + slugify(name) + '.png')
-        except wand.exceptions.BlobError:
-            logging.error('Item '+name+' was unable to download its image')
+        except BlobError:
+            logging.error('Item '+name+' was unable to save its image')
             if os.path.exists('./static/assets/images/' + slugify(name) + '.png'):
                 os.remove('./static/assets/images/' + slugify(name) + '.png')
 
