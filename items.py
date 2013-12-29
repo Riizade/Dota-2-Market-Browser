@@ -97,9 +97,10 @@ def get_hero(image_url):
 #downloads the item image if it doesn't exist
 def download_image(name, url):
     count = 0
-    while count < 5:
-        count = count + 1
-        if not os.path.exists('./static/assets/images/' + slugify(basify(name)) + '.png'):
+
+    if not os.path.exists('./static/assets/images/' + slugify(basify(name)) + '.png'):
+        while count < 5:
+            count = count + 1
             time.sleep(1)
             logging.info('Downloading image for '+name)
             resp, content = httplib2.Http().request(url)
@@ -397,7 +398,7 @@ def update_items(current_page):
                 item_type=item_type,
                 item_slot=item_slot,
                 hero=hero))
-        
+
         download_image(name, market_link)
 
     if (current_page + item_count >= int(request['total_count'])):
