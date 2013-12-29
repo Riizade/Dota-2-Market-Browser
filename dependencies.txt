@@ -1,0 +1,11 @@
+Python
+sqlalchemy
+Wand
+BeautifulSoup
+Flask
+
+sudo apt-get install python-pip
+pip install sqlalchemy
+pip install Wand
+pip install beautifulsoup
+pip install flask
