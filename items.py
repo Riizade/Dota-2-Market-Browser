@@ -110,6 +110,8 @@ def download_image(name, url):
                 img_url = soup.find("div", { "class" : "market_listing_largeimage" }).img['src']
             except AttributeError:
                 logging.error('Item '+name+' was unable to retrieve its image')
+                time.sleep(3)
+                continue
 
             logging.debug('Image for '+name+' is at url '+img_url)
             resp, content = httplib2.Http().request(img_url)
@@ -121,9 +123,9 @@ def download_image(name, url):
                     return
             except BlobError:
                 logging.error('Item '+name+' was unable to save its image')
+                time.sleep(3)
                 if os.path.exists('./static/assets/images/' + slugify(basify(name)) + '.png'):
                     os.remove('./static/assets/images/' + slugify(basify(name)) + '.png')
-        time.sleep(3)
     if (count >= 5):
         logging.error('Skipping image for '+name)
 
