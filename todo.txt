@@ -5,4 +5,6 @@
 - For items with no base item, pull item info from its name
 - Fix truncated sets '(Jewel) of the Forest', '(Gift) of the Sea'
 - Get item_type and item_slot for market items with no base item
-- Created small resolution pictures for each item (96x63)
+- Create small resolution pictures for each item (96x63)
+- Build search panel (creates request link)
+- Parse items slightly better (slots and types more consistently)
