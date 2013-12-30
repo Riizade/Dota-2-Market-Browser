@@ -164,6 +164,7 @@ def parse_type(type_name):
 
 def type_from_name(name):
     name_matches = [
+            ['Greevil', 'Courier'],
             ['Inscribed', 'Gem'],
             ['Prismatic', 'Gem'],
             ['Kinetic', 'Gem'],
@@ -176,13 +177,14 @@ def type_from_name(name):
             ]
 
     for nm in name_matches:
-        if re.match(nm[0], name):
+        if re.search(nm[0], name):
             return nm[1]
 
     return 'None'
 
 def slot_from_name(name):
     name_matches = [
+        ['Greevil', 'Courier'],
         ['Inscribed', 'Inscribed Gem'],
         ['Prismatic', 'Prismatic Gem'],
         ['Kinetic', 'Kinetic Gem'],
@@ -196,7 +198,7 @@ def slot_from_name(name):
         ]
 
     for nm in name_matches:
-        if re.match(nm[0], name):
+        if re.search(nm[0], name):
             return nm[1]
 
     return 'None'
