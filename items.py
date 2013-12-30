@@ -176,6 +176,7 @@ def type_from_name(name):
             ['Ethereal', 'Gem'],
             ['Spectator', 'Gem'],
             ['Announcer', 'Announcer'],
+            ['Mega-Kills', 'Announcer'],
             ['Egg', 'Egg'],
             ['Autograph:', 'Autograph'],
             ['Recipe:', 'Recipe']
@@ -309,7 +310,7 @@ def properfy(string):
     #capitalize the words and switch underscores to spaces
     n = ''
     #for each word
-    for s in string.split('_'):
+    for s in string.replace('_',' ').split(' '):
         if s not in noncapital:
             s = s.capitalize()
         n = n + ' ' + s
