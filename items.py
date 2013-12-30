@@ -74,7 +74,7 @@ def get_schema():
 
         upsert(Item(
                 name_slug=slugify(i['name']), 
-                item_type=parse_item_type(i), 
+                item_type=parse_type(get_item_type(i)), 
                 item_slot=parse_item_slot(i), 
                 item_set=item_set,
                 image_url_large=i['image_url_large'],
@@ -138,20 +138,67 @@ def slugify(s):
 
     return slug
 
-def parse_item_type(item):
-    if (item['item_class'] == 'dota_item_wearable'):
-        item_type = 'Equipment'
-    elif (item['item_class'] == 'tool'):
+def get_item_type(item):
+
+    if (item['item_class'] == 'tool'):
         try:
             item_type = item['tool']['type']
         except KeyError:
             item_type = item['attributes'][0]['name']
-    elif (item['item_class'] == 'supply_crate'):
-        item_type = 'Treasure Chest'
     else:
-        item_type = 'Unknown'
+        item_type = item['item_class']
 
     return item_type
+
+def parse_type(type_name):
+    type_matches = [
+            ['dota_item_wearable', 'Equipment'],
+            ['supply_crate', 'Chest'],
+            ['league_view_pass', 'Ticket']
+            ]
+    for tm in type_matches:
+        if type_name == tm[0]:
+            return tm[1]
+
+    return type_name
+
+def type_from_name(name):
+    name_matches = [
+            ['Inscribed', 'Gem'],
+            ['Prismatic', 'Gem'],
+            ['Kinetic', 'Gem'],
+            ['Ethereal', 'Gem'],
+            ['Announcer', 'Announcer'],
+            ['Egg', 'Egg'],
+            ['Autograph:', 'Autograph'],
+            ['Recipe:', 'Recipe']
+            ]
+
+    for nm in name_matches:
+        if re.match(nm[0], name):
+            return nm[1]
+
+    return 'None'
+
+def slot_from_name(name):
+    name_matches = [
+        ['Inscribed', 'Inscribed Gem'],
+        ['Prismatic', 'Prismatic Gem'],
+        ['Kinetic', 'Kinetic Gem'],
+        ['Ethereal', 'Ethereal Gem'],
+        ['Mega-Kills', 'Mega-Kills Announcer'],
+        ['Announcer', 'Announcer'],
+        ['Egg', 'Egg'],
+        ['Autograph:', 'Autograph'],
+        ['Recipe:', 'Recipe']
+        ]
+
+    for nm in name_matches:
+        if re.match(nm[0], name):
+            return nm[1]
+
+    return 'None'
+
 
 def parse_item_slot(item):
     if (not item['item_class'] == 'dota_item_wearable'):
@@ -331,7 +378,7 @@ def init_db():
     #do-while Python
     while True:
         cur_page = update_items()
-        time.sleep(1)
+        time.sleep(2)
         if cur_page == 0:
             break
 
@@ -379,6 +426,8 @@ def update_items():
                     item_set='None',
                     image_url_large=i.img['src'],
                     image_url_small=i.img['src'], 
+                    item_type=type_from_name(name),
+                    item_slot='None',
                     hero='None',
                     name=name)
 
