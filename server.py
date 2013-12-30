@@ -35,13 +35,22 @@ def market():
             'item_type',
             'item_set',
             'quality']
-
     for query in queries:
         results = filter_results(results, query, request.args.get(query))
 
+    #price filter
+    price_min = request.args.get('price_min')
+    if not price_min == None:
+        results = [i for i in results if getattr(i, 'price') >= float(price_min)]
+    price_max = request.args.get('price_max')
+    if not price_max == None:
+        results = [i for i in results if getattr(i, 'price') <= float(price_max)]
+
+
     #sort results
-    asc = (request.args.get('asc') == 'yes')
-    results.sort(key=lambda x: getattr(x, request.args.get('sort')), reverse=asc)
+    desc = (request.args.get('desc') == 'yes')
+    if not request.args.get('sort') == None:
+        results.sort(key=lambda x: getattr(x, request.args.get('sort')), reverse=desc)
 
 
 
