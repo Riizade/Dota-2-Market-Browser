@@ -8,3 +8,4 @@
 - Create small resolution pictures for each item (96x63)
 - Build search panel (creates request link)
 - Parse items slightly better (slots and types more consistently)
+- Add API Key file and pull schema from the API and not from file
