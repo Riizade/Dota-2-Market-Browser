@@ -62,8 +62,8 @@ def market():
 #------------------------------------------------------------------------------
 # Script Logic
 #------------------------------------------------------------------------------
-if (not os.path.exists('items.db')):
-    init_db()
+#if (not os.path.exists('items.db')):
+init_db()
 
 #continuous_update()
 
