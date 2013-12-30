@@ -4,8 +4,8 @@
 @clr-item-border: @clr-base - #0A0A0A;
 @clr-font: #909090;
 
-@dim-item-width: 700px;
-@dim-item-height: 90px;
+@dim-item-width: 100%;
+@dim-item-height: 70px;
 @dim-item-img-height: @dim-item-height * 0.9;
 @dim-item-img-width: @dim-item-img-height * 1.5172;
 
@@ -47,23 +47,14 @@ body {
     background: @clr-item-bg-2;
 }
 
-.item_image_crop{
-    @vertical-spacing: (@dim-item-height - @dim-item-img-height) /2;
-    @horizontal-spacing: @vertical-spacing;
-    left: @dim-item-width - @dim-item-img-width - @vertical-spacing;
-    top: (@dim-item-height - @dim-item-img-height) /2;
-    overflow:hidden;
+.item_image {
+    right: 5px;
+    top: 2px;
     width: @dim-item-img-width;
     height: @dim-item-img-height;
+    position: absolute;
     border: 1px;
     border-style: solid;
-    position: absolute;
-    }
-
-.item_image {
-    width: @dim-item-img-width;
-    height: @dim-item-img-height;
-    position: absolute;
 }
 
 .item_info {
@@ -81,39 +72,39 @@ body {
 
 .item_quantity {
     .item_info;
-    left: 10px;
+    left: 1%;
     top: 40px;
 }
 
 .item_price {
     .item_info;
-    left: 80px;
+    left: 10%;
     top: 40px;
 }
 
 
 .item_type {
     .item_info;
-    left: 160px;
+    left: 19%;
     top: 40px;
 
 }
 
 .item_slot {
     .item_info;
-    left: 280px;
+    left: 38%;
     top: 40px;
 }
 
 .item_hero {
     .item_info;
-    left: 400px;
+    left: 52%;
     top: 40px;
 }
 
 .item_set {
     .item_info;
-    left: 500px;
+    left: 66%;
     top: 40px;
 
 }

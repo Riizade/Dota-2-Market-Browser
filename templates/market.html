@@ -16,7 +16,7 @@
     <span class="item_type">{{item.item_type}}</span>
     <span class="item_slot">{{item.item_slot}}</span>
     <span class="item_hero">{{item.hero}}</span>
-    <div class="item_image_crop" border-color="{{item.quality_color}}"><img class="item_image" src="{{url_for('static',filename="assets/images/" + item.name_slug + ".png")}}"></div>
+    <img class="item_image" style="border-color: {{item.quality_color}}" src="{{url_for('static',filename="assets/images/" + item.name_slug + ".png")}}">
     <a href="{{item.market_link}}"><span class="span_link"></span></a>
     </div>
     {% endfor %}
