@@ -28,7 +28,7 @@ def market():
 #------------------------------------------------------------------------------
 if (not os.path.exists('items.db')):
     init_db()
-else:
-    init_db()
+
+continuous_update()
 
 

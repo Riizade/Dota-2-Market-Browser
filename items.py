@@ -10,6 +10,7 @@ import os.path
 import unicodedata
 import logging
 import time
+import threading
 from wand.image import Image
 from wand.exceptions import BlobError
 
@@ -325,7 +326,7 @@ def init_db():
     cur_page = 0
     #do-while Python
     while True:
-        cur_page = update_items(cur_page)
+        cur_page = update_items()
         time.sleep(1)
         if cur_page == 0:
             break
@@ -334,15 +335,15 @@ def init_db():
 #takes a starting page (set of 100 items)
 #returns the starting page to be used for the next call to ensure that there
 #are no duplicates and that the function doesn't ask for more items than exist
-def update_items(current_page):
+def update_items():
 
     item_count = 100
-    logging.info('Updating items from '+str(current_page)+' to '+str(current_page+item_count))
+    logging.info('Updating items from '+str(update_items.cur_item)+' to '+str(update_items.cur_item+item_count-1))
 
     #get 100 items from Dota 2 Community Market
     resp, content = httplib2.Http().request(
         "http://steamcommunity.com/market/search/render/?query=appid%3A570&start=" 
-        + str(current_page) + "&count=" + str(item_count))
+        + str(update_items.cur_item) + "&count=" + str(item_count))
 
     #DEBUG for working from file
     #content = open('workfile.html', 'r').read()
@@ -403,12 +404,19 @@ def update_items(current_page):
 
         download_image(name, market_link)
 
-    if (current_page + item_count >= int(request['total_count'])):
-        current_page = 0
+    if (update_items.cur_item + item_count >= int(request['total_count'])):
+        update_items.cur_item = 0
     else:
-        current_page += item_count
+        update_items.cur_item += item_count
 
     #close the session
     session.close()
 
-    return current_page
+    return update_items.cur_item
+
+#initialize static-ish attribute
+update_items.cur_item = 0
+
+def continuous_update():
+   update_items()
+   threading.Timer(1, continuous_update).start()
