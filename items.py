@@ -75,7 +75,7 @@ def get_schema():
         upsert(Item(
                 name_slug=slugify(i['name']), 
                 item_type=parse_type(get_item_type(i)), 
-                item_slot=parse_item_slot(i), 
+                item_slot=get_item_slot(i), 
                 item_set=item_set,
                 image_url_large=i['image_url_large'],
                 image_url_small=i['image_url'], 
@@ -154,13 +154,18 @@ def parse_type(type_name):
     type_matches = [
             ['dota_item_wearable', 'Equipment'],
             ['supply_crate', 'Chest'],
-            ['league_view_pass', 'Ticket']
+            ['league_view_pass', 'Ticket'],
+            ['pennant_upgrade', 'Pennant'],
+            ['fortunate_soul', 'Booster'],
+            ['gift', 'Bundle'],
+            ['dynamic_recipe', 'Recipe'],
+            ['decoder_ring', 'Key']
             ]
     for tm in type_matches:
         if type_name == tm[0]:
             return tm[1]
 
-    return type_name
+    return properfy(type_name)
 
 def type_from_name(name):
     name_matches = [
@@ -204,17 +209,31 @@ def slot_from_name(name):
     return 'None'
 
 
-def parse_item_slot(item):
+def get_item_slot(item):
     if (not item['item_class'] == 'dota_item_wearable'):
         return 'None'
     else:
         search = re.search('(?<=DOTA_WearableType_)\w+', item['item_type_name'])
         if (search):
-            return search.group(0)
+            return parse_slot(search.group(0))
         else:
             return 'None'
 
-def parse_quality(name):
+def parse_slot(slot):
+    slot_map = [
+            ['International_HUD_Skin', 'HUD Skin'],
+            ['pennant_upgrade', 'Pennant']
+            ]
+
+    #for the general case
+    for sm in slot_map:
+        if sm[0] == slot:
+            return sm[1]
+
+    return properfy(slot)
+
+
+def quality_from_name(name):
     qualities =['Inscribed',
                 'Heroic',
                 'Genuine',
@@ -418,7 +437,7 @@ def update_items():
         price = float(i.div.div.span.contents[6].replace('&#36;','').replace('USD','').strip('\n\r '))
         market_link = i['href']
         image_url_tiny = i.img['src']
-        quality = parse_quality(name)
+        quality = quality_from_name(name)
         quality_color = colorize(quality)
         
         try:
@@ -455,8 +474,8 @@ def update_items():
                 quality=quality,
                 quality_color=quality_color,
                 item_set=item_set,
-                item_type=item_type,
-                item_slot=item_slot,
+                item_type=parse_type(item_type),
+                item_slot=parse_slot(item_slot),
                 hero=hero))
 
         download_image(name, market_link)
