@@ -28,6 +28,7 @@ def market():
     results = session.query(MarketItem).all()
     session.close()
 
+    #filter results
     queries = [
             'hero',
             'item_slot',
@@ -37,6 +38,10 @@ def market():
 
     for query in queries:
         results = filter_results(results, query, request.args.get(query))
+
+    #sort results
+    asc = (request.args.get('asc') == 'yes')
+    results.sort(key=lambda x: getattr(x, request.args.get('sort')), reverse=asc)
 
 
 
@@ -48,6 +53,6 @@ def market():
 if (not os.path.exists('items.db')):
     init_db()
 
-continuous_update()
+#continuous_update()
 
 
