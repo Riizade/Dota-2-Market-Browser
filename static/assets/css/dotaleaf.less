@@ -17,6 +17,33 @@ body {
     background-image: url(black-linen.png)
 }
 
+#market_list, #search_panel, #selected_item {
+    float: left;
+}
+
+#search_panel {
+    width: 25%;
+}
+
+#market_list {
+    width: 50%;
+}
+
+#selected_item {
+    width: 25%;
+    position: fixed;
+    left: 75%;
+    top: 40%;
+    border-width: 0px;
+}
+
+.big_image {
+    border-width: 1px;
+    border-color: white;
+    width: 352px;
+    height:232px;
+}
+
 .market_item {
     width: @dim-item-width;
     height: @dim-item-height;
@@ -118,16 +145,4 @@ body {
 
   /* edit: added z-index */
   z-index: 1;
-}
-
-#left_side {
-    width: 25%;
-}
-
-#market_list {
-    width: 50%;
-}
-
-#selected_item {
-    width: 25%;
 }

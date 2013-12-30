@@ -1,7 +1,21 @@
 {% extends "header.html" %}
 {% block body %}
+
+<script>
+$(document).ready(function(){
+    $(".market_item").hover(function(){
+        $(".big_image").attr("src",$(this).children(".item_image").attr("src"));
+    },
+    function(){
+        $(".big_image").attr("src","");
+    }); 
+});
+/*
+
+*/
+</script>
 <body>
-<div id="left_side">
+<div id="search_panel">
 
 </div>
 
@@ -24,7 +38,7 @@
 </div>
 
 <div id="selected_item">
-
+<img class="big_image" />
 </div>
 
 
