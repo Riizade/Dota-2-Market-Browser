@@ -168,6 +168,7 @@ def type_from_name(name):
             ['Prismatic', 'Gem'],
             ['Kinetic', 'Gem'],
             ['Ethereal', 'Gem'],
+            ['Spectator', 'Gem'],
             ['Announcer', 'Announcer'],
             ['Egg', 'Egg'],
             ['Autograph:', 'Autograph'],
@@ -186,6 +187,7 @@ def slot_from_name(name):
         ['Prismatic', 'Prismatic Gem'],
         ['Kinetic', 'Kinetic Gem'],
         ['Ethereal', 'Ethereal Gem'],
+        ['Spectator', 'Spectator Gem'],
         ['Mega-Kills', 'Mega-Kills Announcer'],
         ['Announcer', 'Announcer'],
         ['Egg', 'Egg'],
@@ -427,7 +429,7 @@ def update_items():
                     image_url_large=i.img['src'],
                     image_url_small=i.img['src'], 
                     item_type=type_from_name(name),
-                    item_slot='None',
+                    item_slot=slot_from_name(name),
                     hero='None',
                     name=name)
 
