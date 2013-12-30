@@ -223,7 +223,8 @@ def get_item_slot(item):
 def parse_slot(slot):
     slot_map = [
             ['International_HUD_Skin', 'HUD Skin'],
-            ['pennant_upgrade', 'Pennant']
+            ['pennant_upgrade', 'Pennant'],
+            ['international_courier', 'Courier']
             ]
 
     #for the general case
