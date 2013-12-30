@@ -11,24 +11,13 @@ app = Flask(__name__)
 # URL Routing
 #------------------------------------------------------------------------------
 
-def filter_results(results, attr, value):
+def filter_attribute(results, attr, value):
     if not value == None:
         results = [i for i in results if getattr(i, attr) == value]
     return results
 
-
-@app.route('/')
-def _():
-    return render_template("index.html")
-
-@app.route('/market/')
-def market():
-    session = SessionInstance()
-    logging.info('Market page accessed')
-    results = session.query(MarketItem).all()
-    session.close()
-
-    #filter results
+def filter_results(request, results):
+     #equality filters
     queries = [
             'hero',
             'item_slot',
@@ -36,9 +25,9 @@ def market():
             'item_set',
             'quality']
     for query in queries:
-        results = filter_results(results, query, request.args.get(query))
+        results = filter_attribute(results, query, request.args.get(query))
 
-    #price filter
+    #price filters
     price_min = request.args.get('price_min')
     if not price_min == None:
         results = [i for i in results if getattr(i, 'price') >= float(price_min)]
@@ -52,8 +41,22 @@ def market():
     if not request.args.get('sort') == None:
         results.sort(key=lambda x: getattr(x, request.args.get('sort')), reverse=desc)
 
+    return results
 
 
+
+@app.route('/')
+def _():
+    return render_template("index.html")
+
+@app.route('/market/')
+def market():
+    session = SessionInstance()
+    logging.info('Market page accessed')
+    results = session.query(MarketItem).all()
+    session.close()
+
+    results = filter_results(request, results)
     return render_template("market.html", items=results)
 
 #------------------------------------------------------------------------------
