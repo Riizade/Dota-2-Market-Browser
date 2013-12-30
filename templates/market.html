@@ -10,8 +10,8 @@
     {% for item in items %}
     <div class="market_item">
     <span class="item_name" style="color:{{item.quality_color}}">{{item.name}}</span>
-    <span class="item_price">${{item.price}}</span>
-    <span class="item_quantity">{{item.quantity}}</span>
+    <span class="item_price">{{"${:,.2f}".format(item.price)}}</span>
+    <span class="item_quantity">{{"{:,d}".format(item.quantity)}}</span>
     <span class="item_set">{{item.item_set}}</span>
     <span class="item_type">{{item.item_type}}</span>
     <span class="item_slot">{{item.item_slot}}</span>

@@ -234,11 +234,15 @@ def hero_name(name):
     return properfy(name)
 
 def properfy(string):
-    #ocapitalize the words and switch underscores to spaces
+    
+    noncapital = ['of', 'the', 'a']
+    #capitalize the words and switch underscores to spaces
     n = ''
     #for each word
     for s in string.split('_'):
-        n = n + ' ' + s.capitalize()
+        if s not in noncapital:
+            s = s.capitalize()
+        n = n + ' ' + s
 
     #strip left space
     n = n.strip(' ')
