@@ -57,13 +57,22 @@ def market():
     session.close()
 
     results = filter_results(request, results)
+
+    page = request.args.get('p')
+    if page == None:
+        page = 1
+    else:
+        page = int(page)
+
+    results = results[(page-1)*20:(page*20)-1]
+
     return render_template("market.html", items=results)
 
 #------------------------------------------------------------------------------
 # Script Logic
 #------------------------------------------------------------------------------
-#if (not os.path.exists('items.db')):
-init_db()
+if (not os.path.exists('items.db')):
+    init_db()
 
 #continuous_update()
 
