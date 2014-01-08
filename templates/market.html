@@ -39,6 +39,9 @@ $(document).ready(function(){
 
 <div id="selected_item">
 <img class="big_image" />
+{% for p in range(num_pages) %}
+<a href="{{request.url+'&p='+"{:d}".format(p)}}">{{p}}</a>
+{% endfor %}
 </div>
 
 

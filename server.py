@@ -64,9 +64,9 @@ def market():
     else:
         page = int(page)
 
-    results = results[(page-1)*20:(page*20)-1]
+    results_page = results[(page-1)*20:(page*20)-1]
 
-    return render_template("market.html", items=results)
+    return render_template("market.html", items=results_page, cur_url=request.url, num_pages=(len(results)%20))
 
 #------------------------------------------------------------------------------
 # Script Logic
