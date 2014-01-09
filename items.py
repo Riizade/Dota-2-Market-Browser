@@ -61,6 +61,10 @@ def get_schema():
     #DEBUG for working from file
     items = json.load(open('dota2_schema.json', 'r'))
 
+    #get from network
+    #resp, content = httplib2.Http().request('http://api.steampowered.com/IEconItems_570/GetSchema/v0001/?key=' + key)
+    #items = json.loads(content)
+
     session = SessionInstance()
 
     for i in items['result']['items']:
