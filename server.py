@@ -6,6 +6,8 @@ from flask import *
 #------------------------------------------------------------------------------
 
 app = Flask(__name__)
+#add functions to template
+app.jinja_env.globals.update(page_url=page_url)
 
 #------------------------------------------------------------------------------
 # URL Routing
@@ -15,6 +17,15 @@ def filter_attribute(results, attr, value):
     if not value == None:
         results = [i for i in results if getattr(i, attr) == value]
     return results
+
+def page_url(cur_url, page_num):
+    if (re.search('p=[0-9]*', cur_url)):
+        return re.sub('p=[0-9]*', 'p=' + str(page_num), cur_url)
+    elif ('?' in cur_url):
+        return cur_url + '&p=' + str(page_num)
+    else:
+        return cur_url + '?p=' + str(page_num)
+
 
 def filter_results(request, results):
      #equality filters
