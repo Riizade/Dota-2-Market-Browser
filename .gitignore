@@ -2,9 +2,6 @@
 workfile.html
 test.py
 
-#images
-static/assets/images/
-
 #database
 items.db
 
