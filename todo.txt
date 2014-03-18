@@ -4,7 +4,6 @@ Done, Needs Testing
 - Implement updating database continuously/periodically
 - Implement logging for important events
 - For items with no base item, pull item info from its name
-- Fix truncated sets '(Jewel) of the Forest', '(Gift) of the Sea'
 - Get item_type and item_slot for market items with no base item
 
 In Progress
@@ -12,6 +11,7 @@ In Progress
 
 - Implement items per page request argument
 - Parse items slightly better (slots and types more consistently)
+- Fix truncated sets '(Jewel) of the Forest', '(Gift) of the Sea'
 
 Not Started
 -------------------------------------------------------------------------------
@@ -21,3 +21,4 @@ Not Started
 - Add a log parser (lists items with errors, etc)
 - Add config.json file and pull settings from there (debug flag, API key, logs)
 - Get Schema from API
+- Make page numbers look prettier
