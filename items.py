@@ -99,7 +99,8 @@ def get_hero(image_url):
 
     return hero_name(name)
 
-#downloads the item image if it doesn't exist
+# Checks if the image has already been downloaded using the name
+# Downloads the item image if it doesn't exist already
 def download_image(name, url):
     count = 0
 
@@ -134,6 +135,7 @@ def download_image(name, url):
     if (count >= 5):
         logging.error('Skipping image for '+name)
 
+# Converts names to a standard slug structure
 def slugify(s):
     slug = unicodedata.normalize('NFKD', s)
     slug = slug.encode('ascii', 'ignore').lower()
@@ -142,6 +144,7 @@ def slugify(s):
 
     return slug
 
+# Gets the item type as listed by the Dota 2 Schema
 def get_item_type(item):
 
     if (item['item_class'] == 'tool'):
@@ -154,6 +157,7 @@ def get_item_type(item):
 
     return item_type
 
+# Renames Valve's item types to make more sense
 def parse_type(type_name):
     type_matches = [
             ['dota_item_wearable', 'Equipment'],
@@ -171,6 +175,7 @@ def parse_type(type_name):
 
     return properfy(type_name)
 
+# Determines an item's type from name alone in cases where the item has no schema entry
 def type_from_name(name):
     name_matches = [
             ['Greevil', 'Courier'],
@@ -192,6 +197,7 @@ def type_from_name(name):
 
     return 'None'
 
+# Determines an item's slot from its name in cases where the item has no schema entry
 def slot_from_name(name):
     name_matches = [
         ['Greevil', 'Courier'],
@@ -213,7 +219,7 @@ def slot_from_name(name):
 
     return 'None'
 
-
+# Gets an item's slot from its schema entry
 def get_item_slot(item):
     if (not item['item_class'] == 'dota_item_wearable'):
         return 'None'
@@ -224,6 +230,7 @@ def get_item_slot(item):
         else:
             return 'None'
 
+# Renames Valve's item slots to make more sense
 def parse_slot(slot):
     slot_map = [
             ['International_HUD_Skin', 'HUD Skin'],
@@ -238,7 +245,7 @@ def parse_slot(slot):
 
     return properfy(slot)
 
-
+# Determines an item's quality from its name in cases where the item has no schema entry
 def quality_from_name(name):
     qualities =['Inscribed',
                 'Heroic',
@@ -257,6 +264,7 @@ def quality_from_name(name):
     # return 'Normal' if no quality matches 
     return 'Normal'
 
+# Determine the color of an item from its quality string
 def colorize(quality):
 
     quality_map = [
@@ -280,6 +288,7 @@ def colorize(quality):
     #if there are no matches
     return "#FFFFFF"
 
+# Translates hero names from their internal names to their actual names
 def hero_name(name):
     #for special cases
     name_map = [
@@ -309,6 +318,7 @@ def hero_name(name):
 
     return properfy(name)
 
+# Takes a snake case string and turns it into a proper noun with spaces
 def properfy(string):
     
     noncapital = ['of', 'the', 'a']
@@ -325,7 +335,7 @@ def properfy(string):
 
     return n
 
-#returns the name of the base item (no quality)
+# Returns the name of the base item (removes quality from the name)
 def basify(name):
     qualities =['Inscribed',
             'Heroic',
@@ -344,6 +354,8 @@ def basify(name):
 
     return name
 
+# Updates an item if it already exists
+# Inserts an item if it doesn't already exist
 def upsert(item):
 
     session = SessionInstance()
@@ -396,7 +408,7 @@ def upsert(item):
     session.commit()
     session.close()
 
-
+# Initializes the database by mining all available market pages
 def init_db():
     logging.info('Initialiazing database')
     Item.metadata.create_all(bind=engine)
@@ -411,10 +423,10 @@ def init_db():
         if cur_page == 0:
             break
 
-#usage:
-#takes a starting page (set of 100 items)
-#returns the starting page to be used for the next call to ensure that there
-#are no duplicates and that the function doesn't ask for more items than exist
+# Takes a starting market page number (set of 100 items) 
+# Upserts all items on that page into the database
+# Returns the starting page to be used for the next call to ensure that there
+# are no duplicates and that the function doesn't ask for more items than exist
 def update_items():
 
     item_count = 100
@@ -499,6 +511,7 @@ def update_items():
 #initialize static-ish attribute
 update_items.cur_item = 0
 
-def continuous_update():
+# Periodically updates the database every (sec) seconds
+def continuous_update(sec):
    update_items()
-   threading.Timer(1, continuous_update).start()
+   threading.Timer(sec, continuous_update).start()
