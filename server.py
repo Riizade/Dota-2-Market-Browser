@@ -85,13 +85,13 @@ def market():
     else:
         page = int(page)
 
-    # Get the results present for this page
-    results_page = results[(page-1)*20:(page*20)-1]
-
     # Calculate the number of pages
     num_pages = len(results)/20
     if (len(results)%20 != 0):
         num_pages = num_pages + 1
+
+    # Get the results present for this page
+    results_page = results[(page-1)*20:(page*20)-1]
 
     logging.info('Market request: '+request.url+', '+str(len(results))+' items matched, '+str(num_pages)+' pages returned')
 
@@ -104,7 +104,7 @@ def market():
 if (not os.path.exists('items.db')):
     init_db()
 
-
-#continuous_update(3)
+if settings['update_items']:
+    continuous_update(3)
 
 

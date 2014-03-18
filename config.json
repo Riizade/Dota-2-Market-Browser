@@ -1,0 +1,7 @@
+{
+    "api_key": "",
+    "debug": true,
+    "host": "0.0.0.0",
+    "log_level": 2,
+    "update_items": false
+}

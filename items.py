@@ -14,15 +14,27 @@ import threading
 from wand.image import Image
 from wand.exceptions import BlobError
 
+#------------------------------------------------------------------------------
+# Setup
+#------------------------------------------------------------------------------
+
+settings = json.load(open('config.json'))
+api_key = settings['api_key']
+level = logging.ERROR
+if settings['log_level'] == 1:
+    level = logging.WARNING
+elif settings['log_level'] == 2:
+    level = logging.DEBUG
+
 engine = create_engine('sqlite:///items.db', echo=False)
 Base = declarative_base()
 SessionInstance = sessionmaker(bind=engine)
 logging.basicConfig(
         format='%(asctime)s %(levelname)s: %(message)s',
         filename='./logs/server-'+time.strftime('%Y-%m-%d_%H:%M:%S',time.gmtime())+'.log', 
-        level=logging.DEBUG)
+        level=level)
 sqlalchemy_log = logging.getLogger("sqlalchemy")
-sqlalchemy_log.setLevel(logging.ERROR)
+sqlalchemy_log.setLevel(level)
 sqlalchemy_log.propagate = True
 
 class Item(Base):
@@ -62,7 +74,7 @@ def get_schema():
     items = json.load(open('dota2_schema.json', 'r'))
 
     #get from network
-    #resp, content = httplib2.Http().request('http://api.steampowered.com/IEconItems_570/GetSchema/v0001/?key=' + key)
+    #resp, content = httplib2.Http().request('http://api.steampowered.com/IEconItems_570/GetSchema/v0001/?key=' + api_key)
     #items = json.loads(content)
 
     session = SessionInstance()
