@@ -1,5 +1,6 @@
 import re
 import httplib2
+import unicodedata
 # Parses an item's hero from the item's image_url
 def get_hero(image_url):
     search = re.search('(?<=icons/econ/items/)\w+', image_url)

@@ -10,7 +10,6 @@ import httplib2
 import re
 import os
 import os.path
-import unicodedata
 import logging
 import time
 import threading
@@ -20,11 +19,27 @@ import threading
 
 settings = json.load(open('config.json'))
 api_key = settings['api_key']
+
+# Parse logging levels
 level = logging.ERROR
 if settings['log_level'] == 1:
-    level = logging.WARNING
+    level = logging.CRITICAL
 elif settings['log_level'] == 2:
+    level = logging.WARNING
+elif settings['log_level'] == 3:
+    level = logging.INFO
+elif settings['log_level'] == 4:
     level = logging.DEBUG
+
+sql_level = logging.ERROR
+if settings['sql_log_level'] == 1:
+    sql_level = logging.CRITICAL
+elif settings['sql_log_level'] == 2:
+    sql_level = logging.WARNING
+elif settings['sql_log_level'] == 3:
+    sql_level = logging.INFO
+elif settings['sql_log_level'] == 4:
+    sql_level = logging.DEBUG
 
 engine = create_engine('sqlite:///items.db', echo=False)
 Base = declarative_base()
@@ -34,7 +49,7 @@ logging.basicConfig(
         filename='./logs/server-'+time.strftime('%Y-%m-%d_%H:%M:%S',time.gmtime())+'.log', 
         level=level)
 sqlalchemy_log = logging.getLogger("sqlalchemy")
-sqlalchemy_log.setLevel(level)
+sqlalchemy_log.setLevel(sql_level)
 sqlalchemy_log.propagate = True
 
 class Item(Base):
@@ -84,7 +99,7 @@ def get_schema():
             continue
 
         try:
-            item_set = properfy('_'.join(i['item_set'].split('_')[1:]))
+            item_set = properfy('_'.join(i['item_set'].split('_')[:]))
         except KeyError:
             item_set = 'None'
 
@@ -224,7 +239,15 @@ def update_items():
     # DEBUG for working from file
     #content = open('workfile.html', 'r').read()
 
-    request = json.loads(content)
+    while True:
+        try:
+            request = json.loads(content)
+            break
+        except ValueError:
+            logging.error('Failed to load items '+str(update_items.cur_item)+' to '+str(update_items.cur_item+item_count-1)+', retrying...')
+
+    if (request['total_count'] == 0):
+        logging.error('Market page returned no items')
 
     content = request['results_html']
     soup = BeautifulSoup(content)
