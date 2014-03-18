@@ -39,7 +39,7 @@ $(document).ready(function(){
 
 <div id="selected_item">
 <img class="big_image" />
-{% for p in range(1, num_pages) %}
+{% for p in range(1, num_pages+1) %}
 <a href="{{page_url(cur_url, p)}}">{{p}}</a>
 {% endfor %}
 </div>

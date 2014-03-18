@@ -74,7 +74,6 @@ def _():
 @app.route('/market/')
 def market():
     session = SessionInstance()
-    logging.info('Market page accessed')
     results = session.query(MarketItem).all()
     session.close()
 
@@ -86,9 +85,17 @@ def market():
     else:
         page = int(page)
 
+    # Get the results present for this page
     results_page = results[(page-1)*20:(page*20)-1]
 
-    return render_template("market.html", items=results_page, cur_url=request.url, num_pages=(len(results)%20))
+    # Calculate the number of pages
+    num_pages = len(results)/20
+    if (len(results)%20 != 0):
+        num_pages = num_pages + 1
+
+    logging.info('Market request: '+request.url+', '+str(len(results))+' items matched, '+str(num_pages)+' pages returned')
+
+    return render_template("market.html", items=results_page, cur_url=request.url, num_pages=num_pages)
 
 #------------------------------------------------------------------------------
 # Script Logic
