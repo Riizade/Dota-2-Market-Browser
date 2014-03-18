@@ -13,10 +13,11 @@ In Progress
 - Possibly store resized versions of images to save on bandwidth
 - Implement paging to save bandwidth
 - Parse items slightly better (slots and types more consistently)
-- Add config.json file and pull settings from there (debug flag, API key, logs)
 
 Not Started
 -------------------------------------------------------------------------------
 
 - Create small resolution pictures for each item (96x63)
 - Build search panel (creates request link)
+- Add a log parser (lists items with errors, etc)
+- Add config.json file and pull settings from there (debug flag, API key, logs)
