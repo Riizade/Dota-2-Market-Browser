@@ -432,12 +432,12 @@ def update_items():
     item_count = 100
     logging.info('Updating items from '+str(update_items.cur_item)+' to '+str(update_items.cur_item+item_count-1))
 
-    #get 100 items from Dota 2 Community Market
+    # Get 100 items from Dota 2 Community Market
     resp, content = httplib2.Http().request(
         "http://steamcommunity.com/market/search/render/?query=appid%3A570&start=" 
         + str(update_items.cur_item) + "&count=" + str(item_count))
 
-    #DEBUG for working from file
+    # DEBUG for working from file
     #content = open('workfile.html', 'r').read()
 
     request = json.loads(content)
@@ -445,9 +445,10 @@ def update_items():
     content = request['results_html']
     soup = BeautifulSoup(content)
 
-    #create sql session to add items to the database
+    # Create an SQL session to add items to the database
     session = SessionInstance()
 
+    # Parse page's HTML for items
     for i in soup.findAll('a'):
         name = i.div.contents[5].span.contents[0].strip('\n\r ')
         name_slug = slugify(basify(name))
@@ -458,6 +459,7 @@ def update_items():
         quality = quality_from_name(name)
         quality_color = colorize(quality)
         
+        # Get base item
         try:
             base_item = session.query(Item).filter(Item.name_slug==name_slug)[0]
         except IndexError:
@@ -472,6 +474,7 @@ def update_items():
                     hero='None',
                     name=name)
 
+        # Fill in missing fields using the base item
         item_set = base_item.item_set
         image_url_large = base_item.image_url_large
         image_url_small = base_item.image_url_small
@@ -479,7 +482,7 @@ def update_items():
         item_slot = base_item.item_slot
         hero = base_item.hero
 
-
+        # Upsert the MarketItem
         upsert(MarketItem(
                 name=name,
                 name_slug=name_slug,
@@ -498,17 +501,19 @@ def update_items():
 
         download_image(name, market_link)
 
+    # Update the value to be used for the next call in order to request pages
+    # sequentially
     if (update_items.cur_item + item_count >= int(request['total_count'])):
         update_items.cur_item = 0
     else:
         update_items.cur_item += item_count
 
-    #close the session
+    # Close the session
     session.close()
 
     return update_items.cur_item
 
-#initialize static-ish attribute
+# Creates a static attribute of the update_items() function
 update_items.cur_item = 0
 
 # Periodically updates the database every (sec) seconds
