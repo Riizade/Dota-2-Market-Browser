@@ -2,15 +2,7 @@ from items import *
 from flask import *
 
 #------------------------------------------------------------------------------
-# Setup
-#------------------------------------------------------------------------------
-
-app = Flask(__name__)
-#add functions to template
-app.jinja_env.globals.update(page_url=page_url)
-
-#------------------------------------------------------------------------------
-# URL Routing
+# Filtering and Paging
 #------------------------------------------------------------------------------
 
 # Filters the list of results to only contain items where (attr == value)
@@ -57,6 +49,18 @@ def filter_results(request, results):
         results.sort(key=lambda x: getattr(x, request.args.get('sort')), reverse=desc)
 
     return results
+
+#------------------------------------------------------------------------------
+# Setup
+#------------------------------------------------------------------------------
+
+app = Flask(__name__)
+# Add functions to Jinja2 templates
+app.jinja_env.globals.update(page_url=page_url)
+
+#------------------------------------------------------------------------------
+# URL Routing
+#------------------------------------------------------------------------------
 
 @app.route('/')
 def _():
