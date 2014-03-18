@@ -13,13 +13,18 @@ def filter_attribute(results, attr, value):
 
 # Takes the current request url and modifies it to point to a different page
 def page_url(cur_url, page_num):
-    if (re.search('p=[0-9]*', cur_url)):
-        return re.sub('p=[0-9]*', 'p=' + str(page_num), cur_url)
-    elif ('?' in cur_url):
-        return cur_url + '&p=' + str(page_num)
+    page_re = 'p=[0-9]*'
+    # The case where a page is already specified
+    if (re.search(page_re, cur_url) != None):
+        cur_url = re.sub(page_re, 'p='+str(page_num), cur_url)
+    # The case where there are previous arguments
+    elif (re.search('\?+', cur_url) != None):
+        cur_url = cur_url + '&p='+str(page_num)
+    # The case where there are no previous arguments
     else:
-        return cur_url + '?p=' + str(page_num)
+        cur_url = cur_url+'?p='+str(page_num)
 
+    return cur_url
 
 # Parses a request string and uses it to filter item search results
 # Returns a list containing the item results
