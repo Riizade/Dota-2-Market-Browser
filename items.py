@@ -132,7 +132,10 @@ def quality_from_name(name):
                 'Elder',
                 'Frozen',
                 'Self-Made',
-                'Autographed']
+                'Autographed',
+                'Favored',
+                'Ascendant',
+                'Auspicious']
     for quality in qualities:
         if (re.match(quality, name)):
             return quality
@@ -153,8 +156,10 @@ def colorize(quality):
     ['Elder', '#476291'],
     ['Self-Made', '#70B04A'],
     ['Inscribed', '#CF6632'],
-    # colors unknown
-    ['Autographed', '#FFFFFF']
+    ['Autographed', '#ADE55C'],
+    ['Favored', '#FFFF00'],
+    ['Ascendant', '#EB4B4B'],
+    ['Auspicious', '#32CD32']
     ]
     
     for qm in quality_map:
@@ -196,7 +201,6 @@ def hero_name(name):
 
 # Takes a snake case string and turns it into a proper noun with spaces
 def properfy(string):
-    
     noncapital = ['of', 'the', 'a']
     #capitalize the words and switch underscores to spaces
     n = ''
@@ -213,19 +217,8 @@ def properfy(string):
 
 # Returns the name of the base item (removes quality from the name)
 def basify(name):
-    qualities =['Inscribed',
-            'Heroic',
-            'Genuine',
-            'Cursed',
-            'Corrupted',
-            'Unusual',
-            'Elder',
-            'Frozen',
-            'Self-Made',
-            'Autographed']
-
-    for quality in qualities:
-        if (re.match(quality, name)):
-            return (' ').join(name.split(' ')[1:])
+    quality = quality_from_name(name)
+    name = name.replace(quality, '')
+    name = name.strip()
 
     return name
