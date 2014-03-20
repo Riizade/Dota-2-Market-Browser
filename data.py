@@ -41,6 +41,11 @@ elif settings['sql_log_level'] == 3:
 elif settings['sql_log_level'] == 4:
     sql_level = logging.DEBUG
 
+# Delete db if requested
+if settings['init_new_db']:
+    if os.path.isfile('items.db'):
+        os.remove('items.db')
+
 engine = create_engine('sqlite:///items.db', echo=False)
 Base = declarative_base()
 SessionInstance = sessionmaker(bind=engine)
@@ -122,7 +127,9 @@ def get_schema():
 def download_image(name, url):
     count = 0
 
-    if not os.path.exists('./static/assets/images/' + slugify(basify(name)) + '.png'):
+    base_name = slugify(basify(name))
+
+    if not os.path.exists('./static/assets/images/' + base_name + '.png'):
         while count < 5:
             count = count + 1
             time.sleep(1)
@@ -143,13 +150,13 @@ def download_image(name, url):
             try:
                 with Image(blob=content) as img:
                     img.crop(4, 64, 352+4, 232+64)
-                    img.save(filename='./static/assets/images/' + slugify(basify(name)) + '.png')
+                    img.save(filename='./static/assets/images/' + base_name + '.png')
                     return
             except BlobError:
                 logging.error('Item '+name+' was unable to save its image')
                 time.sleep(3)
-                if os.path.exists('./static/assets/images/' + slugify(basify(name)) + '.png'):
-                    os.remove('./static/assets/images/' + slugify(basify(name)) + '.png')
+                if os.path.exists('./static/assets/images/' + base_name + '.png'):
+                    os.remove('./static/assets/images/' + base_name + '.png')
     if (count >= 5):
         logging.error('Skipping image for '+name)
 
