@@ -121,6 +121,18 @@ def parse_slot(slot):
 
     return properfy(slot)
 
+def parse_set(setname):
+    hero_strings = set(['abaddon','alchemist','ancient_apparition','antimage','axe','bane','batrider','beastmaster','bloodseeker','bounty_hunter','brewmaster','bristleback','broodmother','centaur','chaos_knight','chen','clinkz','crystal_maiden','dark_seer','dazzle','death_prophet','disruptor','doom_bringer','dragon_knight','drow_ranger','earth_spirit','earthshaker','elder_titan','ember_spirit','enchantress','enigma','faceless_void','furion','gyrocopter','huskar','invoker','jakiro','juggernaut','keeper_of_the_light','kunkka','legion_commander','leshrac','lich','life_stealer','lina','lion','lone_druid','luna','lycan','magnataur','medusa','meepo','mirana','morphling','naga_siren','nevermore','night_stalker','nyx_assassin','obsidian_destroyer','ogre_magi','omniknight','phantom_assassin','phantom_lancer','puck','pudge','pugna','queenofpain','rattletrap','razor','riki','rubick','sand_king','shadow_demon','shadow_shaman','shredder','silencer','skeleton_king','skywrath_mage','slardar','slark','sniper','spectre','spirit_breaker','storm_spirit','sven','templar_assassin','tidehunter','tinker','tiny','treant','troll_warlord','tusk','undying','ursa','vengefulspirit','venomancer','viper','visage','warlock','weaver','wisp','witch_doctor','zuus'])
+    set_split = setname.split('_')
+    # Checks for one word hero names
+    if set_split[0] in hero_strings:
+        set_split = set_split[1:]
+    # Checks for two word hero names
+    if set_split[0]+'_'+set_split[1] in hero_strings:
+        set_split = set_split[2:]
+
+    return properfy('_'.join(set_split))
+
 # Determines an item's quality from its name in cases where the item has no schema entry
 def quality_from_name(name):
     qualities =['Inscribed',

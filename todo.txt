@@ -1,18 +1,14 @@
-Done, Needs Testing
+Needs Testing
 -------------------------------------------------------------------------------
 
-- Implement updating database continuously/periodically
-- Implement logging for important events
-- For items with no base item, pull item info from its name
-- Get item_type and item_slot for market items with no base item
+- Updating database continuously/periodically
+- Sets being parsed properly
 
 In Progress
 -------------------------------------------------------------------------------
 
 - Implement items per page request argument
 - Parse items slightly better (slots and types more consistently)
-- Fix truncated sets '(Jewel) of the Forest', '(Gift) of the Sea'
-    - Remove hero names from item sets
 
 Not Started
 -------------------------------------------------------------------------------

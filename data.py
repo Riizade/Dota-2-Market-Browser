@@ -106,7 +106,7 @@ def get_schema():
             continue
 
         try:
-            item_set = properfy('_'.join(i['item_set'].split('_')[:]))
+            item_set = parse_set(i['item_set'])
         except KeyError:
             item_set = 'None'
 
