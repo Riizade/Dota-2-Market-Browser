@@ -1,9 +1,12 @@
-# temp files
+# Temporary files
 workfile.html
 test.py
 
-#database
+# Database
 items.db
+
+# Settings
+config.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
