@@ -18,31 +18,33 @@ import threading
 #------------------------------------------------------------------------------
 
 settings = json.load(open('config.json'))
-api_key = settings['api_key']
+api_key = settings.get('api_key', default='')
 
 # Parse logging levels
+log_num = settings.get('log_level', default=0)
 level = logging.ERROR
-if settings['log_level'] == 1:
+if log_num == 1:
     level = logging.CRITICAL
-elif settings['log_level'] == 2:
+elif log_num == 2:
     level = logging.WARNING
-elif settings['log_level'] == 3:
+elif log_num == 3:
     level = logging.INFO
-elif settings['log_level'] == 4:
+elif log_num == 4:
     level = logging.DEBUG
 
+log_num = settings.get('sql_log_level', default=0)
 sql_level = logging.ERROR
-if settings['sql_log_level'] == 1:
+if log_num == 1:
     sql_level = logging.CRITICAL
-elif settings['sql_log_level'] == 2:
+elif log_num == 2:
     sql_level = logging.WARNING
-elif settings['sql_log_level'] == 3:
+elif log_num == 3:
     sql_level = logging.INFO
-elif settings['sql_log_level'] == 4:
+elif log_num == 4:
     sql_level = logging.DEBUG
 
 # Delete db if requested
-if settings['init_new_db']:
+if settings.get('init_new_db', default=False):
     if os.path.isfile('items.db'):
         os.remove('items.db')
 
