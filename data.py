@@ -18,10 +18,10 @@ import threading
 #------------------------------------------------------------------------------
 
 settings = json.load(open('config.json'))
-api_key = settings.get('api_key', default='')
+api_key = settings.get('api_key', '')
 
 # Parse logging levels
-log_num = settings.get('log_level', default=0)
+log_num = settings.get('log_level', 0)
 level = logging.ERROR
 if log_num == 1:
     level = logging.CRITICAL
@@ -32,7 +32,7 @@ elif log_num == 3:
 elif log_num == 4:
     level = logging.DEBUG
 
-log_num = settings.get('sql_log_level', default=0)
+log_num = settings.get('sql_log_level', 0)
 sql_level = logging.ERROR
 if log_num == 1:
     sql_level = logging.CRITICAL
@@ -44,7 +44,7 @@ elif log_num == 4:
     sql_level = logging.DEBUG
 
 # Delete db if requested
-if settings.get('init_new_db', default=False):
+if settings.get('init_new_db', False):
     if os.path.isfile('items.db'):
         os.remove('items.db')
 

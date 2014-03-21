@@ -104,7 +104,7 @@ def market():
 if (not os.path.exists('items.db')):
     init_db()
 
-if settings.get('update_items', default=True):
+if settings.get('update_items', True):
     continuous_update(3)
 
 
