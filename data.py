@@ -13,6 +13,7 @@ import os.path
 import logging
 import time
 import threading
+
 #------------------------------------------------------------------------------
 # Setup
 #------------------------------------------------------------------------------
@@ -92,12 +93,16 @@ class MarketItem(Base):
 
 # Downloads the Dota 2 item schema and inserts base items into the database
 def get_schema():
-    #DEBUG for working from file
-    items = json.load(open('dota2_schema.json', 'r'))
 
-    #get from network
-    #resp, content = httplib2.Http().request('http://api.steampowered.com/IEconItems_570/GetSchema/v0001/?key=' + api_key)
-    #items = json.loads(content)
+    # Get item schema from Dota 2 API
+    resp, content = httplib2.Http().request('http://api.steampowered.com/IEconItems_570/GetSchema/v0001/?key=' + api_key)
+
+    while True:
+    try:
+        items = json.loads(content)
+        break
+    except ValueError:
+        logging.error('Failed to load item schema from API, retrying...')
 
     session = SessionInstance()
 
@@ -244,9 +249,6 @@ def update_items():
     resp, content = httplib2.Http().request(
         "http://steamcommunity.com/market/search/render/?query=appid%3A570&start=" 
         + str(update_items.cur_item) + "&count=" + str(item_count))
-
-    # DEBUG for working from file
-    #content = open('workfile.html', 'r').read()
 
     while True:
         try:

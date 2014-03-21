@@ -3,6 +3,7 @@ Needs Testing
 
 - Updating database continuously/periodically
 - Sets being parsed properly
+- Loading item schema from the API
 
 In Progress
 -------------------------------------------------------------------------------
@@ -17,5 +18,4 @@ Not Started
 - Build search panel (creates request link)
 - Add a log parser (lists items with errors, etc)
 - Add config.json file and pull settings from there (debug flag, API key, logs)
-- Get Schema from API
 - Make page numbers look prettier
