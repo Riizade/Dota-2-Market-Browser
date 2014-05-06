@@ -245,13 +245,13 @@ def update_items():
     item_count = 100
     logging.info('Updating items from '+str(update_items.cur_item)+' to '+str(update_items.cur_item+item_count-1))
 
-    # Get 100 items from Dota 2 Community Market
-    resp, content = httplib2.Http().request(
-        "http://steamcommunity.com/market/search/render/?query=appid%3A570&start=" 
-        + str(update_items.cur_item) + "&count=" + str(item_count))
-
     while True:
         try:
+            # Get 100 items from Dota 2 Community Market
+            resp, content = httplib2.Http().request(
+                "http://steamcommunity.com/market/search/render/?query=appid%3A570&start=" 
+                + str(update_items.cur_item) + "&count=" + str(item_count))
+
             request = json.loads(content)
             break
         except ValueError:
@@ -266,14 +266,18 @@ def update_items():
     # Create an SQL session to add items to the database
     session = SessionInstance()
 
-    # Parse page's HTML for items
-    for i in soup.findAll('a'):
-        name = i.div.contents[5].span.contents[0].strip('\n\r ')
+    #DEBUG
+    f = open('market.html', 'w')
+    f.write(content)
+    f.close()
+
+    for i in re.findall(r'market_listing_row_link.+?</a>', content, re.DOTALL):
+        name = re.search('item_name.+?>(.+?)(</span>)', i).group(1)
         name_slug = slugify(basify(name))
-        quantity = int(i.div.div.span.span.contents[0].strip('\n\r ').replace(',',''))
-        price = float(i.div.div.span.contents[6].replace('&#36;','').replace('USD','').strip('\n\r '))
-        market_link = i['href']
-        image_url_tiny = i.img['src']
+        price = float(re.search('(?<=\&#36;)(.+?)(</span>)', i).group(1))
+        quantity = int(re.search('(?<=qty">)(.+?)(</span>)', i).group(1).replace(',',''))
+        market_link = re.search('href="(.+?)(")', i).group(1)
+        image_url_tiny = re.search('<img.+?src="(.+?)(")', i).group(1)
         quality = quality_from_name(name)
         quality_color = colorize(quality)
         
@@ -285,8 +289,8 @@ def update_items():
             base_item = Item(
                     name_slug=slugify(name), 
                     item_set='None',
-                    image_url_large=i.img['src'],
-                    image_url_small=i.img['src'], 
+                    image_url_large=image_url_tiny,
+                    image_url_small=image_url_tiny, 
                     item_type=type_from_name(name),
                     item_slot=slot_from_name(name),
                     hero='None',

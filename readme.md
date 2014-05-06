@@ -14,6 +14,8 @@
     pip install beautifulsoup
     pip install flask
     apt-get install libmagickwand-dev
+    
+    run.sh additionally requires xterm (though could be easily modified to work with other terminals)
 
 # Configuration
 The main config file is config.json

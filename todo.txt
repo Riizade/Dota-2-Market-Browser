@@ -8,6 +8,7 @@ Needs Testing
 In Progress
 -------------------------------------------------------------------------------
 
+- Rewrite item parsing from market pages using regular expressions (not BeautifulSoup)
 - Implement items per page request argument
 - Parse items slightly better (slots and types more consistently)
 
