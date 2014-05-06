@@ -98,11 +98,11 @@ def get_schema():
     resp, content = httplib2.Http().request('http://api.steampowered.com/IEconItems_570/GetSchema/v0001/?key=' + api_key)
 
     while True:
-    try:
-        items = json.loads(content)
-        break
-    except ValueError:
-        logging.error('Failed to load item schema from API, retrying...')
+        try:
+            items = json.loads(content)
+            break
+        except ValueError:
+            logging.error('Failed to load item schema from API, retrying...')
 
     session = SessionInstance()
 
