@@ -266,11 +266,6 @@ def update_items():
     # Create an SQL session to add items to the database
     session = SessionInstance()
 
-    #DEBUG
-    f = open('market.html', 'w')
-    f.write(content)
-    f.close()
-
     for i in re.findall(r'market_listing_row_link.+?</a>', content, re.DOTALL):
         name = re.search('item_name.+?>(.+?)(</span>)', i).group(1)
         name_slug = slugify(basify(name))
