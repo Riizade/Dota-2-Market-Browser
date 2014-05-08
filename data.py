@@ -243,7 +243,6 @@ def init_db():
 def update_items():
 
     item_count = 100
-    logging.info('Updating items from '+str(update_items.cur_item)+' to '+str(update_items.cur_item+item_count-1))
 
     while True:
         try:
@@ -259,6 +258,8 @@ def update_items():
 
     if (request['total_count'] == 0):
         logging.error('Market page returned no items')
+
+    logging.info('Updating items from '+str(update_items.cur_item)+' to '+str(update_items.cur_item+item_count-1)+' of '+str(request['total_count']))
 
     content = request['results_html']
     soup = BeautifulSoup(content)

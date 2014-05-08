@@ -19,10 +19,11 @@
 
 # Configuration
 The main config file is config.json
+
 Here are the accepted fields for config.json
 
-update_items: whether or not to continuously update the market listings of items
-api_key: your API key for use with Valve's market API
-log_level: the amount of information to log (0-4), higher numbers give more information in logs
-sql_log_level: the amount of information to log for SQLAlchemy (0-4)
-init_new_db: deletes the current item database and builds a new one (repopulates and reparses all data)
+    update_items: whether or not to continuously update the market listings of items
+    api_key: your API key for use with Valve's market API
+    log_level: the amount of information to log (0-4), higher numbers give more information in logs
+    sql_log_level: the amount of information to log for SQLAlchemy (0-4)
+    init_new_db: deletes the current item database and builds a new one (repopulates and reparses all data)
