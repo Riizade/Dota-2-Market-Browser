@@ -43,7 +43,12 @@ def parse_type(type_name):
             ['fortunate_soul', 'Booster'],
             ['gift', 'Bundle'],
             ['dynamic_recipe', 'Recipe'],
-            ['decoder_ring', 'Key']
+            ['decoder_ring', 'Key'],
+            ['gem_type', 'Gem'],
+            ['mysterious_egg', 'Egg'],
+            ['hero_ability', 'Active Item'],
+            ['event_ticket', 'Ticket'],
+            ['tournament_passport', 'Ticket']
             ]
     for tm in type_matches:
         if type_name == tm[0]:
@@ -111,7 +116,9 @@ def parse_slot(slot):
     slot_map = [
             ['International_HUD_Skin', 'HUD Skin'],
             ['pennant_upgrade', 'Pennant'],
-            ['international_courier', 'Courier']
+            ['international_courier', 'Courier'],
+            ['abomination', 'Head'],
+            ['amulet', 'Neck']
             ]
 
     #for the general case

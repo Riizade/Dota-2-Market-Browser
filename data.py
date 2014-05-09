@@ -120,6 +120,8 @@ class Quality(Base):
 # Downloads the Dota 2 item schema and inserts base items into the database
 def get_schema():
 
+    logging.info('Downloading schema')
+
     # Get item schema from Dota 2 API
     resp, content = httplib2.Http().request('http://api.steampowered.com/IEconItems_570/GetSchema/v0001/?key=' + api_key)
 
@@ -130,6 +132,7 @@ def get_schema():
         except ValueError:
             logging.error('Failed to load item schema from API, retrying...')
 
+    logging.info('Updating base items')
     session = SessionInstance()
 
     for i in items['result']['items']:
@@ -154,6 +157,8 @@ def get_schema():
 
     session.commit()
     session.close()
+    
+    logging.info('All base items have been updated')
 
 # Checks if the image has already been downloaded using the name
 # Downloads the item image if it doesn't exist already
@@ -362,6 +367,12 @@ def update_items():
         item_type = base_item.item_type
         item_slot = base_item.item_slot
         hero = base_item.hero
+
+        # Check for courier being in the hero slot
+        if (hero == "Courier"):
+            item_type = "Courier"
+            item_slot = "Courier"
+            hero = "None"
 
         # Upsert the MarketItem
         upsert(MarketItem(
