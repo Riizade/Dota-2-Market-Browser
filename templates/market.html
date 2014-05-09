@@ -10,12 +10,33 @@ $(document).ready(function(){
         $(".big_image").attr("src","");
     }); 
     $(".chosen-select").chosen({allow_single_deselect: true});
+    $("#search_btn").click(function(){
+        //build query url
+        var url = "?";
+        if($("#hero_select").val() != "") {
+            url += "&hero="+$("#hero_select").val();
+        }
+        if($("#slot_select").val() != "") {
+            url += "&item_slot="+$("#slot_select").val();
+        }
+        if($("#set_select").val() != "") {
+            url += "&item_set="+$("#set_select").val();
+        }
+        if($("#type_select").val() != "") {
+            url += "&item_type="+$("#type_select").val();
+        }
+        if($("#quality_select").val() != "") {
+            url += "&quality="+$("#quality_select").val();
+        }
+
+        window.location = "/market/"+url
+    });
 });
 </script>
 <body>
 <div id="search_panel">
     <p>Hero</p>
-    <select data-placeholder="Choose a Hero..." class="chosen-select" tabindex="2">
+    <select data-placeholder="Choose a Hero..." class="chosen-select" id="hero_select" tabindex="2">
         <option value=""> </option>
         {% for hero in heroes %}
         <option value="{{hero.name}}">{{hero.name}}</option>
@@ -23,7 +44,7 @@ $(document).ready(function(){
     </select>
     </br>
     <p>Equipment Slot</p>
-    <select data-placeholder="Choose a Slot..." class="chosen-select" tabindex="2">
+    <select data-placeholder="Choose a Slot..." class="chosen-select" id="slot_select" tabindex="2">
         <option value=""> </option>
         {% for slot in slots %}
         <option value="{{slot.name}}">{{slot.name}}</option>
@@ -31,7 +52,7 @@ $(document).ready(function(){
     </select>
     </br>
     <p>Item Set</p>
-    <select data-placeholder="Choose a Set..." class="chosen-select" tabindex="2">
+    <select data-placeholder="Choose a Set..." class="chosen-select" id="set_select" tabindex="2">
         <option value=""> </option>
         {% for set in sets %}
         <option value="{{set.name}}">{{set.name}}</option>
@@ -39,12 +60,23 @@ $(document).ready(function(){
     </select>
     </br>
     <p>Item Type</p>
-    <select data-placeholder="Choose a Type..." class="chosen-select" tabindex="2">
+    <select data-placeholder="Choose a Type..." class="chosen-select" id="type_select" tabindex="2">
         <option value=""> </option>
         {% for type in types %}
         <option value="{{type.name}}">{{type.name}}</option>
         {% endfor %}
     </select>
+    <p>Item Quality</p>
+    <select data-placeholder="Choose a Type..." class="chosen-select" id="quality_select" tabindex="2">
+        <option value=""> </option>
+        {% for quality in qualities %}
+        <option value="{{quality.name}}">{{quality.name}}</option>
+        {% endfor %}
+    </select>
+    </br>
+    </br>
+    </br>
+    <button id="search_btn">Search</button>
 
     <div id="pagediv">
     <!-- Pages -->

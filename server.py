@@ -81,6 +81,7 @@ def market():
     slot_list = session.query(Slot).all()
     set_list = session.query(Set).all()
     type_list = session.query(Type).all()
+    quality_list = []
     session.close()
 
     # Filter and sort data
@@ -107,7 +108,7 @@ def market():
 
     logging.info('Market request: '+request.url+', '+str(len(results))+' items matched, '+str(num_pages)+' pages returned')
 
-    return render_template("market.html", items=results_page, cur_url=request.url, num_pages=num_pages, heroes=hero_list, slots=slot_list, sets=set_list, types=type_list)
+    return render_template("market.html", items=results_page, cur_url=request.url, num_pages=num_pages, heroes=hero_list, slots=slot_list, sets=set_list, types=type_list, qualities=quality_list)
 
 #------------------------------------------------------------------------------
 # Script Logic
