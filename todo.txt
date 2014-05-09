@@ -2,19 +2,18 @@ Needs Testing
 -------------------------------------------------------------------------------
 
 - Updating database continuously/periodically
-- Sets being parsed properly
-- Loading item schema from the API
+- Search panel request link
 
 In Progress
 -------------------------------------------------------------------------------
 
-- Implement items per page request argument
 - Do parsing for slots, types, heroes, sets
-- Have the search panel build a request link
 
 Not Started
 -------------------------------------------------------------------------------
 
+- Display item description/details under big_image on hover
+- Remove HTML character codes from items (&quot;, &lt;, etc)
 - Create small resolution pictures for each item (96x63) to save on bandwidth
 - Add a log parser (lists items with errors, etc)
 - Make page numbers look prettier
