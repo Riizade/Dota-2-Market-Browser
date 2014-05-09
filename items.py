@@ -207,11 +207,12 @@ def hero_name(name):
     ['witchdoctor', 'Witch Doctor']
     ]
 
-    #for the general case
+    # For the special cases in name_map
     for nm in name_map:
         if nm[0] == name:
             return nm[1]
 
+    # For the general case
     return properfy(name)
 
 # Takes a snake case string and turns it into a proper noun with spaces

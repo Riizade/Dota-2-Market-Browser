@@ -91,6 +91,27 @@ class MarketItem(Base):
     item_slot = Column(String)
     hero = Column(String)
 
+class Hero(Base):
+    __tablename__ = 'heroes'
+
+    name = Column(String, primary_key=True)
+
+class Slot(Base):
+    __tablename__ = 'slots'
+
+    name = Column(String, primary_key=True)
+
+class Type(Base):
+    __tablename__ = 'types'
+
+    name = Column(String, primary_key=True)
+
+class Set(Base):
+    __tablename__ = 'sets'
+
+    name = Column(String, primary_key=True)
+
+
 # Downloads the Dota 2 item schema and inserts base items into the database
 def get_schema():
 
@@ -169,54 +190,84 @@ def download_image(name, url):
 
 # Updates an item if it already exists
 # Inserts an item if it doesn't already exist
-def upsert(item):
+def upsert(datum):
 
     session = SessionInstance()
 
-    if type(item) is MarketItem:
-        #if the item exists already
+    if type(datum) is MarketItem:
+        # If the item exists already
         try:
-            tmp_item = session.query(MarketItem).filter(MarketItem.name==item.name)[0]
-            #update item in database
-            logging.debug('Updating market item: '+item.name)
-            tmp_item.name = item.name
-            tmp_item.quantity = item.quantity
-            tmp_item.price = item.price
-            tmp_item.name_slug = item.name_slug
-            tmp_item.market_link = item.market_link
-            tmp_item.quality = item.quality
-            tmp_item.quality_color = item.quality_color
-            tmp_item.item_set = item.item_set
-            tmp_item.image_url_large = item.image_url_large
-            tmp_item.image_url_small = item.image_url_small
-            tmp_item.image_url_tiny = item.image_url_tiny
-            tmp_item.item_type = item.item_type
-            tmp_item.item_slot = item.item_slot
-            tmp_item.hero = item.hero
+            tmp_item = session.query(MarketItem).filter(MarketItem.name==datum.name)[0]
+            # Update item in database
+            logging.debug('Updating market item: '+datum.name)
+            tmp_item.name = datum.name
+            tmp_item.quantity = datum.quantity
+            tmp_item.price = datum.price
+            tmp_item.name_slug = datum.name_slug
+            tmp_item.market_link = datum.market_link
+            tmp_item.quality = datum.quality
+            tmp_item.quality_color = datum.quality_color
+            tmp_item.item_set = datum.item_set
+            tmp_item.image_url_large = datum.image_url_large
+            tmp_item.image_url_small = datum.image_url_small
+            tmp_item.image_url_tiny = datum.image_url_tiny
+            tmp_item.item_type = datum.item_type
+            tmp_item.item_slot = datum.item_slot
+            tmp_item.hero = datum.hero
 
-        #if the item does not exist already
+        # If the item does not exist already
         except IndexError:
-            logging.debug('Adding new market item: '+item.name)
-            session.add(item)
+            logging.debug('Adding new market item: '+datum.name)
+            session.add(datum)
 
-    elif type(item) is Item:
+    elif type(datum) is Item:
         try:
-            tmp_item = session.query(Item).filter(Item.defindex==item.defindex)[0]
-            logging.debug('Updating base item: '+item.name)
-            tmp_item.name = item.name
-            tmp_item.name_slug = item.name_slug
-            tmp_item.item_set = item.item_set
-            tmp_item.image_url_large = item.image_url_large
-            tmp_item.image_url_small = item.image_url_small
-            tmp_item.item_type = item.item_type
-            tmp_item.item_slot = item.item_slot
-            tmp_item.hero = item.hero
-            tmp_item.defindex = item.defindex
+            tmp_item = session.query(Item).filter(Item.defindex==datum.defindex)[0]
+            logging.debug('Updating base item: '+datum.name)
+            tmp_item.name = datum.name
+            tmp_item.name_slug = datum.name_slug
+            tmp_item.item_set = datum.item_set
+            tmp_item.image_url_large = datum.image_url_large
+            tmp_item.image_url_small = datum.image_url_small
+            tmp_item.item_type = datum.item_type
+            tmp_item.item_slot = datum.item_slot
+            tmp_item.hero = datum.hero
+            tmp_item.defindex = datum.defindex
 
         except IndexError:
-            logging.debug('Adding new base item: '+item.name)
-            session.add(item)
+            logging.debug('Adding new base item: '+datum.name)
+            session.add(datum)
 
+    elif type(datum) is Hero:
+        try:
+            tmp_hero = session.query(Hero).filter(Hero.name==datum.name)[0]
+        except IndexError:
+            logging.debug('Adding new hero: '+datum.name)
+            session.add(datum)
+
+    elif type(datum) is Slot:
+        try:
+            tmp_slot = session.query(Slot).filter(Slot.name==datum.name)[0]
+        except IndexError:
+            logging.debug('Adding new slot: '+datum.name)
+            session.add(datum)
+
+    elif type(datum) is Set:
+        try:
+            tmp_set = session.query(Set).filter(Set.name==datum.name)[0]
+        except IndexError:
+            logging.debug('Adding new set: '+datum.name)
+            session.add(datum)
+
+    elif type(datum) is Type:
+        try:
+            tmp_type = session.query(Type).filter(Type.name==datum.name)[0]
+        except IndexError:
+            logging.debug('Adding new type: '+datum.name)
+            session.add(datum)
+
+    else:
+        logging.error('Attempted to add data of type '+str(type(datum))+' that has no table')
 
     session.commit()
     session.close()
@@ -316,6 +367,12 @@ def update_items():
                 item_type=parse_type(item_type),
                 item_slot=parse_slot(item_slot),
                 hero=hero))
+
+        # Upsert values for item fields
+        upsert(Hero(name=hero))
+        upsert(Slot(name=parse_slot(item_slot)))
+        upsert(Set(name=item_set))
+        upsert(Type(name=parse_type(item_type)))
 
         download_image(name, market_link)
 

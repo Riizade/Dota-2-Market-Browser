@@ -74,10 +74,22 @@ def _():
 @app.route('/market/')
 def market():
     session = SessionInstance()
+    # Get list of items
     results = session.query(MarketItem).all()
+    # Get list of possible values for each field
+    hero_list = session.query(Hero).all()
+    slot_list = session.query(Slot).all()
+    set_list = session.query(Set).all()
+    type_list = session.query(Type).all()
     session.close()
 
+    # Filter and sort data
     results = filter_results(request, results)
+    hero_list.sort(key=lambda x: x.name, reverse=False)
+    slot_list.sort(key=lambda x: x.name, reverse=False)
+    set_list.sort(key=lambda x: x.name, reverse=False)
+    type_list.sort(key=lambda x: x.name, reverse=False)
+
 
     page = request.args.get('p')
     if page == None:
@@ -95,7 +107,7 @@ def market():
 
     logging.info('Market request: '+request.url+', '+str(len(results))+' items matched, '+str(num_pages)+' pages returned')
 
-    return render_template("market.html", items=results_page, cur_url=request.url, num_pages=num_pages)
+    return render_template("market.html", items=results_page, cur_url=request.url, num_pages=num_pages, heroes=hero_list, slots=slot_list, sets=set_list, types=type_list)
 
 #------------------------------------------------------------------------------
 # Script Logic

@@ -9,14 +9,35 @@ $(document).ready(function(){
     function(){
         $(".big_image").attr("src","");
     }); 
+    $(".chosen-select").chosen();
 });
-/*
-
-*/
 </script>
 <body>
 <div id="search_panel">
-<p width="100%">Stuff goes here.</p>
+    <select data-placeholder="Choose a Hero..." class="chosen-select" style="width:350px;" tabindex="2">
+        <option value=""></option>
+        {% for hero in heroes %}
+        <option value="{{hero.name}}">{{hero.name}}</option>
+        {% endfor %}
+    </select>
+    <select data-placeholder="Choose a Slot..." class="chosen-select" style="width:350px;" tabindex="2">
+        <option value=""></option>
+        {% for slot in slots %}
+        <option value="{{slot.name}}">{{slot.name}}</option>
+        {% endfor %}
+    </select>
+    <select data-placeholder="Choose a Set..." class="chosen-select" style="width:350px;" tabindex="2">
+        <option value=""></option>
+        {% for set in sets %}
+        <option value="{{set.name}}">{{set.name}}</option>
+        {% endfor %}
+    </select>
+    <select data-placeholder="Choose a Type..." class="chosen-select" style="width:350px;" tabindex="2">
+        <option value=""></option>
+        {% for type in types %}
+        <option value="{{type.name}}">{{type.name}}</option>
+        {% endfor %}
+    </select>
 </div>
 
 <div id="market_list">
