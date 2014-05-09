@@ -51,7 +51,7 @@ def parse_type(type_name):
             ['tournament_passport', 'Ticket']
             ]
     for tm in type_matches:
-        if type_name == tm[0]:
+        if type_name.lower() == tm[0].lower():
             return tm[1]
 
     return properfy(type_name)
@@ -123,7 +123,7 @@ def parse_slot(slot):
 
     #for the general case
     for sm in slot_map:
-        if sm[0] == slot:
+        if sm[0].lower() == slot.lower():
             return sm[1]
 
     return properfy(slot)
