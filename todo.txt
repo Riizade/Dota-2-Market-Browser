@@ -12,6 +12,7 @@ In Progress
 Not Started
 -------------------------------------------------------------------------------
 
+- Figure out what to do for inconsistent slots (beast being both mount (mirana) and ability slot (beastmaster), for instance)
 - Display item description/details under big_image on hover
 - Remove HTML character codes from items (&quot;, &lt;, etc)
 - Create small resolution pictures for each item (96x63) to save on bandwidth
