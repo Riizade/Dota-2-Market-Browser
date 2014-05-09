@@ -46,10 +46,11 @@ def parse_type(type_name):
             ['decoder_ring', 'Key'],
             ['gem_type', 'Gem'],
             ['mysterious_egg', 'Egg'],
-            ['hero_ability', 'Active Item'],
+            ['hero_ability', 'Action Item'],
             ['event_ticket', 'Ticket'],
             ['tournament_passport', 'Ticket']
             ]
+    type_name = type_name.replace(' ','_')
     for tm in type_matches:
         if type_name.lower() == tm[0].lower():
             return tm[1]
@@ -121,11 +122,13 @@ def parse_slot(slot):
             ['amulet', 'Neck']
             ]
 
-    #for the general case
+    slot = slot.replace(' ','_')
+    # For the special cases in slot_map
     for sm in slot_map:
         if sm[0].lower() == slot.lower():
             return sm[1]
 
+    # For the general case
     return properfy(slot)
 
 def parse_set(setname):
