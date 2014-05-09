@@ -81,7 +81,7 @@ def market():
     slot_list = session.query(Slot).all()
     set_list = session.query(Set).all()
     type_list = session.query(Type).all()
-    quality_list = []
+    quality_list = session.query(Quality).all()
     session.close()
 
     # Filter and sort data

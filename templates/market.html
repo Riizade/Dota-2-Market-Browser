@@ -28,6 +28,18 @@ $(document).ready(function(){
         if($("#quality_select").val() != "") {
             url += "&quality="+$("#quality_select").val();
         }
+        if($("#sort_select").val() != "") {
+            url += "&sort="+$("#sort_select").val();
+        }
+        if($("#chk_desc").is(":checked")) {
+            url += "&desc=yes";
+        }
+        if($("#min_price").val() != "") {
+            url += "&price_min="+$("#min_price").val();
+        }
+        if($("#max_price").val() != "") {
+            url += "&price_max="+$("#max_price").val();
+        }
 
         window.location = "/market/"+url
     });
@@ -67,12 +79,28 @@ $(document).ready(function(){
         {% endfor %}
     </select>
     <p>Item Quality</p>
-    <select data-placeholder="Choose a Type..." class="chosen-select" id="quality_select" tabindex="2">
+    <select data-placeholder="Choose a Quality..." class="chosen-select" id="quality_select" tabindex="2">
         <option value=""> </option>
         {% for quality in qualities %}
         <option value="{{quality.name}}">{{quality.name}}</option>
         {% endfor %}
     </select>
+    <p>Sort Criterion</p>
+    <select data-placeholder="Sort by..." class="chosen-select" id="sort_select" tabindex="2">
+        <option value=""> </option>
+        <option value="price">Price</option>
+        <option value="hero">Hero</option>
+        <option value="item_slot">Slot</option>
+        <option value="item_set">Set</option>
+        <option value="item_type">Type</option>
+        <option value="quality">Quality</option>
+        <option value="quantity">Quantity</option>
+    </select>
+    <input type="checkbox" value="desc" id="chk_desc">Sort descending? </br>
+    <p>Minimum Price</p>
+    <input type="text" name="min_price" class="txt_price" id="min_price"><br>
+    <p>Maximum Price</p>
+    <input type="text" name="max_price" class="txt_price" id="max_price"><br>
     </br>
     </br>
     </br>

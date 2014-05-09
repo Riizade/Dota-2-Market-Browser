@@ -111,6 +111,11 @@ class Set(Base):
 
     name = Column(String, primary_key=True)
 
+class Quality(Base):
+    __tablename__ = 'qualities'
+
+    name = Column(String, primary_key=True)
+
 
 # Downloads the Dota 2 item schema and inserts base items into the database
 def get_schema():
@@ -266,6 +271,13 @@ def upsert(datum):
             logging.debug('Adding new type: '+datum.name)
             session.add(datum)
 
+    elif type(datum) is Quality:
+        try:
+            tmp_quality = session.query(Quality).filter(Quality.name==datum.name)[0]
+        except IndexError:
+            logging.debug('Adding new quality: '+datum.name)
+            session.add(datum)
+
     else:
         logging.error('Attempted to add data of type '+str(type(datum))+' that has no table')
 
@@ -373,6 +385,7 @@ def update_items():
         upsert(Slot(name=parse_slot(item_slot)))
         upsert(Set(name=item_set))
         upsert(Type(name=parse_type(item_type)))
+        upsert(Quality(name=quality))
 
         download_image(name, market_link)
 
