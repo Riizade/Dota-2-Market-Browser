@@ -127,7 +127,6 @@ class Quality(Base):
 
 # Downloads the Dota 2 item schema and inserts base items into the database
 def get_schema():
-
     logging.info('Downloading schema')
 
     # Get item schema from Dota 2 API
@@ -140,6 +139,10 @@ def get_schema():
         except ValueError:
             logging.error('Failed to load item schema from API, retrying...')
 
+    logging.info('Saving schema to file')
+    f = open('schema.json', 'w')
+    f.write(content)
+    f.close()
     logging.info('Updating base items')
     session = SessionInstance()
 
@@ -345,15 +348,17 @@ def update_items():
     for i in re.findall(r'market_listing_row_link.+?</a>', content, re.DOTALL):
         if i is None:
             logging.error("No items found on market page")
-        name = re.search('item_name.+?>(.+?)(</span>)', i).group(1)
-        name_slug = slugify(basify(name))
-        price = float(re.search('(?<=\&#36;)(.+?)(</span>)', i).group(1))
-        quantity = int(re.search('(?<=qty">)(.+?)(</span>)', i).group(1).replace(',',''))
-        market_link = re.search('href="(.+?)(")', i).group(1)
-        image_url_tiny = re.search('<img.+?src="(.+?)(")', i).group(1)
-        quality = quality_from_name(name)
-        quality_color = colorize(quality)
-        
+        try:
+            name = re.search('item_name.+?>(.+?)(</span>)', i).group(1)
+            name_slug = slugify(basify(name))
+            price = float(re.search('(?<=\&#36;)(.+?)(</span>)', i).group(1))
+            quantity = int(re.search('(?<=qty">)(.+?)(</span>)', i).group(1).replace(',',''))
+            market_link = re.search('href="(.+?)(")', i).group(1)
+            image_url_tiny = re.search('<img.+?src="(.+?)(")', i).group(1)
+            quality = quality_from_name(name)
+            quality_color = colorize(quality)
+        except AttributeError:
+            logging.error('Could not find item fields in '+str(i))
         # Get base item
         try:
             base_item = session.query(Item).filter(Item.name_slug==name_slug)[0]
@@ -396,8 +401,8 @@ def update_items():
                 quality=quality,
                 quality_color=quality_color,
                 item_set=item_set,
-                item_type=parse_type(item_type),
-                item_slot=parse_slot(item_slot),
+                item_type=item_types,
+                item_slot=item_slot,
                 hero=hero))
 
         # Upsert values for item fields
@@ -631,10 +636,13 @@ def parse_slot(slot):
 
     slot = slot.strip('_')
     slot = slot.replace(' ','_')
+    slot = slot.lower()
     # For the special cases in slot_map
     for sm in slot_map:
-        if sm[0].lower() == slot.lower():
+        if sm[0].lower() == slot:
             return sm[1]
+
+    logging.debug('No match for slot '+slot+', returning '+properfy(slot))
 
     # For the general case
     return properfy(slot)
