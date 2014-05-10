@@ -401,7 +401,7 @@ def update_items():
                 quality=quality,
                 quality_color=quality_color,
                 item_set=item_set,
-                item_type=item_types,
+                item_type=item_type,
                 item_slot=item_slot,
                 hero=hero))
 

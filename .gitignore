@@ -1,6 +1,7 @@
 # Temporary files
 workfile.html
-test.py
+test.*
+temp.*
 
 # Database
 items.db
