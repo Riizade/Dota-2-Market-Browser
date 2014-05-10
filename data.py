@@ -467,7 +467,6 @@ def wikify(s):
     s = s.encode('ascii', 'ignore').lower()
     s = properfy(s)
     s = s.replace(' ', '_')
-    s = s.replace('\'', '')
 
     return s
 
@@ -559,23 +558,38 @@ def slot_from_wiki(item_name):
     try:
         item_slot = session.query(WikiSlot).filter(WikiSlot.name==item_name)[0]
     except IndexError:
-        name = wikify(item_name)
-
         logging.debug('Getting item slot for '+name+' from the wiki')
+        item_slot = get_wiki_slot(item_name)
 
-        url = 'http://dota2.gamepedia.com/'+name
-        resp, content = httplib2.Http().request(url)
-
-        search = re.search('Equip Slot:<br />(.+?)', content)
-        if (search):
-            item_slot = search.group(1)
-            session.add(WikiSlot(name=item_name, slot=item_slot))
+        if(item_slot is None):
+            # Try without quotes
+            item_name_tmp = item_name.replace('\'', '')
+            item_slot = get_wiki_slot(item_name_tmp)
+            if(item_slot is None):
+                logging.error('Could not find item slot for '+item_name+' on the wiki')
+                item_slot = 'None'
+            else:
+                session.add(WikiSlot(name=item_name, slot=item_slot))
         else:
-            logging.error('Could not find item slot for item '+name+' on the wiki')
-            item_slot = 'Unknown'
-
+            session.add(WikiSlot(name=item_name, slot=item_slot))
+        
     session.commit()
     session.close()
+
+    return item_slot
+
+def get_wiki_slot(item_name):
+    name = wikify(item_name)
+
+    url = 'http://dota2.gamepedia.com/'+name
+    resp, content = httplib2.Http().request(url)
+
+    search = re.search('Equip Slot:<br />(.+?)', content)
+    if (search):
+        item_slot = search.group(1)
+    else:
+        logging.error('Could not find item slot for item '+name+' on the wiki')
+        item_slot = None
 
     return item_slot
 
