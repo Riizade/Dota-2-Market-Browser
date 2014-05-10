@@ -97,27 +97,22 @@ class MarketItem(Base):
 
 class Hero(Base):
     __tablename__ = 'heroes'
-
     name = Column(String, primary_key=True)
 
 class Slot(Base):
     __tablename__ = 'slots'
-
     name = Column(String, primary_key=True)
 
 class Type(Base):
     __tablename__ = 'types'
-
     name = Column(String, primary_key=True)
 
 class Set(Base):
     __tablename__ = 'sets'
-
     name = Column(String, primary_key=True)
 
 class Quality(Base):
     __tablename__ = 'qualities'
-
     name = Column(String, primary_key=True)
 
 
@@ -129,11 +124,11 @@ class Quality(Base):
 def get_schema():
     logging.info('Downloading schema')
 
-    # Get item schema from Dota 2 API
-    resp, content = httplib2.Http().request('http://api.steampowered.com/IEconItems_570/GetSchema/v0001/?key=' + api_key)
 
     while True:
         try:
+            # Get item schema from Dota 2 API
+            resp, content = httplib2.Http().request('http://api.steampowered.com/IEconItems_570/GetSchema/v0001/?key=' + api_key)
             items = json.loads(content)
             break
         except ValueError:
