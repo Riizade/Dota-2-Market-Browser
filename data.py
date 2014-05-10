@@ -407,9 +407,9 @@ def update_items():
 
         # Upsert values for item fields
         upsert(Hero(name=hero))
-        upsert(Slot(name=parse_slot(item_slot)))
+        upsert(Slot(name=item_slot))
         upsert(Set(name=item_set))
-        upsert(Type(name=parse_type(item_type)))
+        upsert(Type(name=item_type))
         upsert(Quality(name=quality))
 
         download_image(name, market_link)
