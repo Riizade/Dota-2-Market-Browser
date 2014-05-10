@@ -8,6 +8,8 @@ In Progress
 -------------------------------------------------------------------------------
 
 - Do parsing for slots, types, heroes, sets
+- Use dictionaries for the replacement tables instead of linear searching lists
+- Build a database table of item slots to prevent continuously downloading wiki pages
 
 Not Started
 -------------------------------------------------------------------------------
@@ -18,3 +20,4 @@ Not Started
 - Create small resolution pictures for each item (96x63) to save on bandwidth
 - Add a log parser (lists items with errors, etc)
 - Make page numbers look prettier
+- Periodically update schema as well as the market items
