@@ -45,7 +45,7 @@ elif log_num == 4:
     sql_level = logging.DEBUG
 
 # Delete db if requested
-if settings.get('init_new_db', False):
+if settings.get('delete_old_db', False):
     if os.path.isfile('items.db'):
         os.remove('items.db')
 
@@ -94,6 +94,11 @@ class MarketItem(Base):
     item_type = Column(String)
     item_slot = Column(String)
     hero = Column(String)
+
+class WikiSlot(Base):
+    __tablename__ = 'wiki_slot'
+    name = Column(String, primary_key=True) # Name of item
+    slot = Column(String)
 
 class Hero(Base):
     __tablename__ = 'heroes'
@@ -295,12 +300,14 @@ def upsert(datum):
     session.commit()
     session.close()
 
-# Initializes the database by mining all available market pages
+# Creates and initializes an empty database
 def init_db():
     logging.info('Initialiazing database')
     Item.metadata.create_all(bind=engine)
     MarketItem.metadata.create_all(bind=engine)
 
+def refresh_db():
+    # Mine schema and all pages to populate database
     get_schema()
     cur_page = 0
     #do-while Python
@@ -456,6 +463,7 @@ def wikify(s):
     s = s.encode('ascii', 'ignore').lower()
     s = properfy(s)
     s = s.replace(' ', '_')
+    s = s.replace('\'', '')
 
     return s
 
@@ -541,21 +549,27 @@ def slot_from_name(name):
     return 'None'
 
 # Gets an item's slot from its entry on dota2.gamepedia.com
-def slot_from_wiki(item):
-    name = item['name']
-    name = wikify(name)
+def slot_from_wiki(item_name):
+    session = SessionInstance()
 
-    logging.debug('Getting item slot for '+name+' from the wiki')
+    try:
+        item_slot = session.query(WikiSlot).filter(WikiSlot.name==item_name)[0]
+    except IndexError:
+        name = wikify(item_name)
 
-    url = 'http://dota2.gamepedia.com/'+name
-    resp, content = httplib2.Http().request(url)
+        logging.debug('Getting item slot for '+name+' from the wiki')
 
-    search = re.search('Equip Slot:<br />(.+?)', content)
-    if (search):
-        return search.group(1)
-    else:
-        logging.error('Could not find item slot for item '+name+' on the wiki')
-        return 'Unknown'
+        url = 'http://dota2.gamepedia.com/'+name
+        resp, content = httplib2.Http().request(url)
+
+        search = re.search('Equip Slot:<br />(.+?)', content)
+        if (search):
+            item_slot = search.group(1)
+        else:
+            logging.error('Could not find item slot for item '+name+' on the wiki')
+            item_slot = 'Unknown'
+
+    return item_slot
 
 
 # Gets an item's slot from its schema entry
@@ -738,7 +752,7 @@ def hero_name(name):
 
 # Takes a snake case string and turns it into a proper noun with spaces
 def properfy(string):
-    noncapital = ['of', 'the', 'a']
+    noncapital = ['of', 'the', 'a', 'from']
     # Capitalize the words and switch underscores to spaces
     n = ''
     # For each word
@@ -749,6 +763,10 @@ def properfy(string):
 
     # Strip left space
     n = n.strip(' ')
+
+    # Capitalize words after hyphens
+    for m in re.findall('(?<=-)[a-z]', n):
+        n = n.replace('-'+m, '-'+m.capitalize())
 
     return n
 

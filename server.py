@@ -114,10 +114,22 @@ def market():
 # Script Logic
 #------------------------------------------------------------------------------
 
+
 if (not os.path.exists('items.db')):
     init_db()
 
+if(settings.get('populate_db')):
+    refresh_db()
+
+update_count = 0
 if settings.get('update_items', True):
     continuous_update(3)
+    
+    update_count += 1
+    if (update_count % 1000 == 0):
+        update_count = 0
+
+    if update_count == 0:
+        get_schema()
 
 
