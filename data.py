@@ -431,10 +431,14 @@ def update_items():
 # Creates a static attribute of the update_items() function
 update_items.cur_item = 0
 
-# Periodically updates the database every (sec) seconds
-def continuous_update(sec):
+# Periodically updates a market page every (sec) seconds
+def market_timer(sec):
    update_items()
-   threading.Timer(sec, continuous_update).start()
+   threading.Timer(sec, market_timer).start()
+# Periodically updates the schema every (sec) seconds
+def schema_timer(sec):
+    get_schema()
+    threading.Timer(sec, schema_timer).start()
 
 #------------------------------------------------------------------------------
 # Item Parsing Functions

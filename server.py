@@ -121,15 +121,12 @@ if (not os.path.exists('items.db')):
 if(settings.get('populate_db')):
     refresh_db()
 
-update_count = 0
-if settings.get('update_items', True):
-    continuous_update(3)
-    
-    update_count += 1
-    if (update_count % 1000 == 0):
-        update_count = 0
+market_sec = settings.get('market_timer', 0)
+if market_sec != 0:
+    market_timer(market_sec)
 
-    if update_count == 0:
-        get_schema()
+schema_sec = settings.get('schema_timer', 0)
+if schema_sec != 0:
+    schema_timer(schema_sec)
 
 
