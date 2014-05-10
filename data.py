@@ -158,7 +158,7 @@ def get_schema():
         upsert(Item(
                 name_slug=slugify(i['name']), 
                 item_type=parse_type(get_item_type(i)), 
-                item_slot=get_item_slot(i), 
+                item_slot=slot_from_wiki(i['name']), 
                 item_set=item_set,
                 image_url_large=i['image_url_large'],
                 image_url_small=i['image_url'], 
@@ -569,9 +569,13 @@ def slot_from_wiki(item_name):
         search = re.search('Equip Slot:<br />(.+?)', content)
         if (search):
             item_slot = search.group(1)
+            session.add(WikiSlot(name=item_name, slot=item_slot))
         else:
             logging.error('Could not find item slot for item '+name+' on the wiki')
             item_slot = 'Unknown'
+
+    session.commit()
+    session.close()
 
     return item_slot
 
