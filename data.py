@@ -648,18 +648,18 @@ def info_from_wiki(item_name):
 
         # Try multiple names for wiki URLs
         names = []
-        names.append(wikify(item_name))
-        names.append(wikify(item_name.replace('\'', '')))
+        names.append(item_name)
+        names.append(item_name.replace('\'', ''))
         for name in names:
             name_data = parse_wiki(name)
             if not (name_data['slot'] is None):
-                data['slot'] = unicode(name_data['slot'])
+                data['slot'] = name_data['slot']
             if not (name_data['rarity'] is None):
-                data['rarity'] = unicode(name_data['rarity'])
+                data['rarity'] = name_data['rarity']
             if not (name_data['rarity_color'] is None):
-                data['rarity_color'] = unicode(name_data['rarity_color'])
+                data['rarity_color'] = name_data['rarity_color']
             if not (name_data['description'] is None):
-                data['description'] = unicode(name_data['description'])
+                data['description'] = name_data['description']
 
         session.add(WikiInfo(
                     name=item_name,
@@ -675,10 +675,14 @@ def info_from_wiki(item_name):
 
 # Parses a wiki page for information and returns that data as a dictionary
 def parse_wiki(item_name):
-    name = item_name
+    name = wikify(item_name)
 
     url = 'http://dota2.gamepedia.com/'+name
     resp, content = httplib2.Http().request(url)
+
+    f = open('test.html', 'w')
+    f.write(content)
+    f.close()
 
     # Parse slot
     search = re.search('Equip Slot:<br />(.+)', content)
@@ -690,7 +694,7 @@ def parse_wiki(item_name):
     # Parse description
     search = re.search('style="font-style:italic;padding:6px 10px;">(.+)', content)
     if(search):
-        item_description = search.group(1)
+        item_description = search.group(1).decode('UTF-8')
     else:
         item_description = None
 
