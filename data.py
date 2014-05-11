@@ -584,7 +584,7 @@ def get_wiki_slot(item_name):
     url = 'http://dota2.gamepedia.com/'+name
     resp, content = httplib2.Http().request(url)
 
-    search = re.search('Equip Slot:<br />(.+?)', content)
+    search = re.search('Equip Slot:<br />(.+)', content)
     if (search):
         item_slot = search.group(1)
     else:
