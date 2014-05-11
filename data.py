@@ -99,6 +99,9 @@ class WikiInfo(Base):
     __tablename__ = 'wiki_info'
     name = Column(String, primary_key=True) # Name of item
     slot = Column(String)
+    rarity = Column(String)
+    rarity_color = Column(String)
+    description = Column(String)
 
 class Hero(Base):
     __tablename__ = 'heroes'
@@ -580,6 +583,8 @@ def slot_from_wiki(item_name):
 
 # Attempts to find information on an item using the wiki
 def info_from_wiki(item_name):
+    session = SessionInstance()
+
     try:
         item_info = session.query(WikiInfo).filter(WikiInfo.name==item_name)[0]
         logging.debug('Found cached wiki data for item '+item_name)
@@ -605,9 +610,16 @@ def info_from_wiki(item_name):
             if not (name_data['description'] is None):
                 data['description'] = name_data['description']
 
-        
+        session.add(WikiInfo(
+                    slot=data['slot'],
+                    rarity=data['rarity'],
+                    rarity_color=data['rarity_color'],
+                    description=data['description']))
 
+        session.commit()
+        session.close()
 
+    return data
 
 # Parses a wiki page for information and returns that data as a dictionary
 def parse_wiki(item_name):
@@ -641,7 +653,7 @@ def parse_wiki(item_name):
                 'Arcana']
     item_rarity  = None
     for rarity in rarities:
-        search = re.search('color=".+?">'+rarity+'</font></b>')
+        search = re.search('color=".+?">'+rarity+'</font></b>', content)
         if (search):
             item_rarity = rarity
 
