@@ -10,6 +10,7 @@ In Progress
 - Do parsing for slots, types, heroes, sets
 - Use dictionaries for the replacement tables instead of linear searching lists
 - Build a database table of item slots to prevent continuously downloading wiki pages
+- Use Wiki to parse rarity, description
 
 Not Started
 -------------------------------------------------------------------------------

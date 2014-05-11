@@ -95,8 +95,8 @@ class MarketItem(Base):
     item_slot = Column(String)
     hero = Column(String)
 
-class WikiSlot(Base):
-    __tablename__ = 'wiki_slot'
+class WikiInfo(Base):
+    __tablename__ = 'wiki_info'
     name = Column(String, primary_key=True) # Name of item
     slot = Column(String)
 
@@ -556,7 +556,7 @@ def slot_from_wiki(item_name):
     session = SessionInstance()
 
     try:
-        item_slot = session.query(WikiSlot).filter(WikiSlot.name==item_name)[0]
+        item_slot = session.query(WikiInfo).filter(WikiInfo.name==item_name)[0]
     except IndexError:
         logging.debug('Getting item slot for '+item_name+' from the wiki')
         item_slot = get_wiki_slot(item_name)
@@ -569,14 +569,99 @@ def slot_from_wiki(item_name):
                 logging.error('Could not find item slot for item '+item_name+' on the wiki')
                 item_slot = 'None'
             else:
-                session.add(WikiSlot(name=item_name, slot=item_slot))
+                session.add(WikiInfo(name=item_name, slot=item_slot))
         else:
-            session.add(WikiSlot(name=item_name, slot=item_slot))
+            session.add(WikiInfo(name=item_name, slot=item_slot))
         
     session.commit()
     session.close()
 
     return item_slot
+
+# Attempts to find information on an item using the wiki
+def info_from_wiki(item_name):
+    try:
+        item_info = session.query(WikiInfo).filter(WikiInfo.name==item_name)[0]
+        logging.debug('Found cached wiki data for item '+item_name)
+    except IndexError:
+        logging.info('Getting information for item '+item_name+' from the wiki')
+
+        data = {'slot': None,
+                'rarity': None,
+                'rarity_color': None,
+                'description': None}
+        # Try multiple names for wiki URLs
+        names = []
+        names.append(wikify(item_name))
+        names.append(wikify(item_name.replace('\'', '')))
+        for name in names:
+            name_data = parse_wiki(name)
+            if not (name_data['slot'] is None):
+                data['slot'] = name_data['slot']
+            if not (name_data['rarity'] is None):
+                data['rarity'] = name_data['rarity']
+            if not (name_data['rarity_color'] is None):
+                data['rarity_color'] = name_data['rarity_color']
+            if not (name_data['description'] is None):
+                data['description'] = name_data['description']
+
+        
+
+
+
+# Parses a wiki page for information and returns that data as a dictionary
+def parse_wiki(item_name):
+    name = item_name
+
+    url = 'http://dota2.gamepedia.com/'+name
+    resp, content = httplib2.Http().request(url)
+
+    # Parse slot
+    search = re.search('Equip Slot:<br />(.+)', content)
+    if (search):
+        item_slot = search.group(1)
+    else:
+        item_slot = None
+
+    # Parse description
+    search = re.search('style="font-style:italic;padding:6px 10px;">(.+)', content)
+    if(search):
+        item_description = search.group(1)
+    else:
+        item_description = None
+
+    # Parse rarity
+    rarities = ['Common',
+                'Uncommon',
+                'Rare',
+                'Mythical',
+                'Legendary',
+                'Ancient',
+                'Immortal',
+                'Arcana']
+    item_rarity  = None
+    for rarity in rarities:
+        search = re.search('color=".+?">'+rarity+'</font></b>')
+        if (search):
+            item_rarity = rarity
+
+    rarity_colors = {'Common': '#B0C3D9',
+                    'Uncommon': '#5E98D9', 
+                    'Rare': '#4B69FF',
+                    'Mythical': '#8847FF', 
+                    'Legendary': '#D32CE6',  
+                    'Ancient': '#EB4B4B',
+                    'Immortal': '#E4AE33',  
+                    'Arcana': '#ADE55C'}
+
+    rarity_color = rarity_colors.get(item_rarity, None)
+
+    data = {'slot': item_slot,
+            'rarity': item_rarity,
+            'rarity_color': rarity_color,
+            'description': item_description}
+
+    return data
 
 def get_wiki_slot(item_name):
     name = wikify(item_name)
