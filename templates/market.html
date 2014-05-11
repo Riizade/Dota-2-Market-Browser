@@ -28,6 +28,9 @@ $(document).ready(function(){
         if($("#quality_select").val() != "") {
             url += "&quality="+$("#quality_select").val();
         }
+        if($("#rarity_select").val() != "") {
+            url += "&rarity="+$("#rarity_select").val();
+        }
         if($("#sort_select").val() != "") {
             url += "&sort="+$("#sort_select").val();
         }
@@ -83,6 +86,13 @@ $(document).ready(function(){
         <option value=""> </option>
         {% for quality in qualities %}
         <option value="{{quality.name}}">{{quality.name}}</option>
+        {% endfor %}
+    </select>
+    <p>Item Rarity</p>
+    <select data-placeholder="Choose a Rarity..." class="chosen-select" id="rarity_select" tabindex="2">
+        <option value=""> </option>
+        {% for rarity in rarities %}
+        <option value="{{rarity.name}}">{{rarity.name}}</option>
         {% endfor %}
     </select>
     <p>Sort Criterion</p>

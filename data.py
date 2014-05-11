@@ -75,6 +75,9 @@ class Item(Base):
     image_url_small = Column(String)
     item_type = Column(String)
     item_slot = Column(String)
+    rarity = Column(String)
+    rarity_color = Column(String)
+    description = Column(String)
     hero = Column(String)
 
 class MarketItem(Base):
@@ -93,6 +96,9 @@ class MarketItem(Base):
     image_url_tiny = Column(String)
     item_type = Column(String)
     item_slot = Column(String)
+    rarity = Column(String)
+    rarity_color = Column(String)
+    description = Column(String)
     hero = Column(String)
 
 class WikiInfo(Base):
@@ -123,6 +129,10 @@ class Quality(Base):
     __tablename__ = 'qualities'
     name = Column(String, primary_key=True)
 
+class Rarity(Base):
+    __tablename__ = 'rarities'
+    name = Column(String, primary_key=True)
+
 
 #------------------------------------------------------------------------------
 # Data Retrieval Functions
@@ -131,7 +141,6 @@ class Quality(Base):
 # Downloads the Dota 2 item schema and inserts base items into the database
 def get_schema():
     logging.info('Downloading schema')
-
 
     while True:
         try:
@@ -158,15 +167,20 @@ def get_schema():
         except KeyError:
             item_set = 'None'
 
+        wiki_info = info_from_wiki(i['name'])
+
         upsert(Item(
                 name_slug=slugify(i['name']), 
                 item_type=parse_type(get_item_type(i)), 
-                item_slot=slot_from_wiki(i['name']), 
+                item_slot=wiki_info['slot'], 
                 item_set=item_set,
                 image_url_large=i['image_url_large'],
                 image_url_small=i['image_url'], 
                 hero=get_hero(i['image_url']),
                 name=i['name'],
+                rarity=wiki_info['rarity'],
+                rarity_color=wiki_info['rarity_color'],
+                description=wiki_info['description'],
                 defindex=i['defindex']))
 
     session.commit()
@@ -237,6 +251,9 @@ def upsert(datum):
             tmp_item.image_url_tiny = datum.image_url_tiny
             tmp_item.item_type = datum.item_type
             tmp_item.item_slot = datum.item_slot
+            tmp_item.rarity = datum.rarity
+            tmp_item.rarity_color = datum.rarity_color
+            tmp_item.description = datum.description
             tmp_item.hero = datum.hero
 
         # If the item does not exist already
@@ -255,6 +272,9 @@ def upsert(datum):
             tmp_item.image_url_small = datum.image_url_small
             tmp_item.item_type = datum.item_type
             tmp_item.item_slot = datum.item_slot
+            tmp_item.rarity = datum.rarity
+            tmp_item.rarity_color = datum.rarity_color
+            tmp_item.description = datum.description
             tmp_item.hero = datum.hero
             tmp_item.defindex = datum.defindex
 
@@ -292,9 +312,16 @@ def upsert(datum):
 
     elif type(datum) is Quality:
         try:
-            tmp_quality = session.query(Quality).filter(Quality.name==datum.name)[0]
+            tmp_datum = session.query(Quality).filter(Quality.name==datum.name)[0]
         except IndexError:
             logging.debug('Adding new quality: '+datum.name)
+            session.add(datum)
+
+    elif type(datum) is Rarity:
+        try:
+            tmp_datum = session.query(Rarity).filter(Rarity.name==datum.name)[0]
+        except IndexError:
+            logging.debug('Adding new rarity: '+datum.name)
             session.add(datum)
 
     else:
@@ -369,6 +396,8 @@ def update_items():
             base_item = session.query(Item).filter(Item.name_slug==name_slug)[0]
         except IndexError:
             logging.warning(name+' has no base item')
+
+            wiki_info = info_from_wiki(name)
             base_item = Item(
                     name_slug=slugify(name), 
                     item_set='None',
@@ -376,6 +405,9 @@ def update_items():
                     image_url_small=image_url_tiny, 
                     item_type=type_from_name(name),
                     item_slot=slot_from_name(name),
+                    rarity=wiki_info['rarity'],
+                    rarity_color=wiki_info['rarity_color'],
+                    description=wiki_info['description'],
                     hero='None',
                     name=name)
 
@@ -385,6 +417,9 @@ def update_items():
         image_url_small = base_item.image_url_small
         item_type = base_item.item_type
         item_slot = base_item.item_slot
+        rarity = base_item.rarity
+        rarity_color = base_item.rarity_color
+        description = base_item.description
         hero = base_item.hero
 
         # Check for courier being in the hero slot
@@ -408,6 +443,9 @@ def update_items():
                 item_set=item_set,
                 item_type=item_type,
                 item_slot=item_slot,
+                rarity=rarity,
+                rarity_color=rarity_color,
+                description=description,
                 hero=hero))
 
         # Upsert values for item fields
@@ -416,6 +454,7 @@ def update_items():
         upsert(Set(name=item_set))
         upsert(Type(name=item_type))
         upsert(Quality(name=quality))
+        upsert(Rarity(name=rarity))
 
         download_image(name, market_link)
 
@@ -467,9 +506,15 @@ def slugify(s):
     return slug
 
 def wikify(s):
-    s = s.encode('ascii', 'ignore').lower()
-    s = properfy(s)
-    s = s.replace(' ', '_')
+    special = {'Reaver': 'Reaver_(Equipment)'}
+    # General Case
+    if (special.get(s, None) is None):
+        s = s.encode('ascii', 'ignore').lower()
+        s = properfy(s)
+        s = s.replace(' ', '_')
+    # Special case
+    else:
+        s = special.get(s, None)
 
     return s
 
@@ -583,18 +628,24 @@ def slot_from_wiki(item_name):
 
 # Attempts to find information on an item using the wiki
 def info_from_wiki(item_name):
+    data = {'slot': None,
+            'rarity': None,
+            'rarity_color': None,
+            'description': None}
+
     session = SessionInstance()
 
     try:
         item_info = session.query(WikiInfo).filter(WikiInfo.name==item_name)[0]
+        data['slot'] = item_info.slot
+        data['rarity'] = item_info.rarity
+        data['rarity_color'] = item_info.rarity_color
+        data['description'] = item_info.description
+
         logging.debug('Found cached wiki data for item '+item_name)
     except IndexError:
         logging.info('Getting information for item '+item_name+' from the wiki')
 
-        data = {'slot': None,
-                'rarity': None,
-                'rarity_color': None,
-                'description': None}
         # Try multiple names for wiki URLs
         names = []
         names.append(wikify(item_name))
@@ -611,6 +662,7 @@ def info_from_wiki(item_name):
                 data['description'] = name_data['description']
 
         session.add(WikiInfo(
+                    name=item_name,
                     slot=data['slot'],
                     rarity=data['rarity'],
                     rarity_color=data['rarity_color'],
