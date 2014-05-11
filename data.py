@@ -653,13 +653,13 @@ def info_from_wiki(item_name):
         for name in names:
             name_data = parse_wiki(name)
             if not (name_data['slot'] is None):
-                data['slot'] = name_data['slot']
+                data['slot'] = unicode(name_data['slot'])
             if not (name_data['rarity'] is None):
-                data['rarity'] = name_data['rarity']
+                data['rarity'] = unicode(name_data['rarity'])
             if not (name_data['rarity_color'] is None):
-                data['rarity_color'] = name_data['rarity_color']
+                data['rarity_color'] = unicode(name_data['rarity_color'])
             if not (name_data['description'] is None):
-                data['description'] = name_data['description']
+                data['description'] = unicode(name_data['description'])
 
         session.add(WikiInfo(
                     name=item_name,
