@@ -140,6 +140,7 @@ $(document).ready(function(){
     {% for item in items %}
     <div class="market_item">
     <span class="item_name" style="color:{{item.quality_color}}">{{item.name}}</span>
+    <span class="item_rarity" style="color:{{item.rarity_color}}">{{item.rarity}}</span>
     <span class="item_price">{{"${:,.2f}".format(item.price)}}</span>
     <span class="item_quantity">{{"{:,d}".format(item.quantity)}}</span>
     <span class="item_set">{{item.item_set}}</span>
