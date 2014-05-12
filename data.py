@@ -550,7 +550,8 @@ def parse_type(type_name):
             ['mysterious_egg', 'Egg'],
             ['hero_ability', 'Action Item'],
             ['event_ticket', 'Ticket'],
-            ['tournament_passport', 'Ticket']
+            ['tournament_passport', 'Ticket'],
+            ['passport_fantasy_team', 'Ticket']
             ]
     type_name = type_name.replace(' ','_')
     for tm in type_matches:
@@ -683,7 +684,8 @@ def info_from_wiki(item_name):
 
         # DEBUG find the dumb slot parse
         if ('href' in data['slot']):
-            logging.warning('Item '+item_name+' has the strange slot')
+            logging.warning('Item '+item_name+' has a strange slot')
+            data['slot'] = 'Shoulders'
 
         # Add info to cache database table
         session.add(WikiInfo(
