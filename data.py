@@ -393,11 +393,11 @@ def update_items():
             logging.error('Could not find item fields in '+str(i))
         # Get base item
         try:
-            base_item = session.query(Item).filter(Item.name_slug==name_slug)[0]
+            base_item = session.query(Item).filter(Item.name==basify(name))[0]
         except IndexError:
             logging.warning(name+' has no base item')
 
-            wiki_info = info_from_wiki(name)
+            wiki_info = info_from_wiki(basify(name))
             base_item = Item(
                     name_slug=slugify(name), 
                     item_set='None',
@@ -626,11 +626,18 @@ def slot_from_wiki(item_name):
 
     return item_slot
 
+# Checks if the information returned from a wiki parsing is good or not
+def bad_wiki_info(data):
+    if data['slot'] == 'N/A' and data['description'] == 'N/A':
+        return True
+    else:
+        return False
+
 # Attempts to find information on an item using the wiki
 def info_from_wiki(item_name):
     data = {'slot': None,
-            'rarity': None,
-            'rarity_color': None,
+            'rarity': 'Common',
+            'rarity_color': '#B0C3D9',
             'description': None}
 
     session = SessionInstance()
@@ -647,20 +654,30 @@ def info_from_wiki(item_name):
         logging.info('Getting information for item '+item_name+' from the wiki')
 
         # Try multiple names for wiki URLs
+        fields = ['slot', 'rarity', 'rarity_color', 'description']
         names = []
         names.append(item_name)
-        names.append(item_name.replace('\'', ''))
+        name_no_apostrophe = item_name.replace('\'', '')
+        # Only add this variant if the resultant string is different
+        if name_no_apostrophe == item_name:
+            names.append(name_no_apostrophe)
         for name in names:
             name_data = parse_wiki(name)
-            if not (name_data['slot'] is None):
-                data['slot'] = name_data['slot']
-            if not (name_data['rarity'] is None):
-                data['rarity'] = name_data['rarity']
-            if not (name_data['rarity_color'] is None):
-                data['rarity_color'] = name_data['rarity_color']
-            if not (name_data['description'] is None):
-                data['description'] = name_data['description']
+            # Look for fields
+            for field in fields:
+                if not (name_data[field] is None):
+                    data[field] = name_data[field]
 
+        # Check each field for None and replace with a string
+        for field in fields:
+            if (data[field] is None):
+                data[field] = 'N/A'
+
+        # If the wiki page was bad, return a warning
+        if bad_wiki_info(data):
+            logging.warning('Could not find wiki info for item '+item_name)
+
+        # Add info to cache database table
         session.add(WikiInfo(
                     name=item_name,
                     slot=data['slot'],
@@ -845,7 +862,7 @@ def parse_set(setname):
 
     return properfy('_'.join(set_split))
 
-# Determines an item's quality from its name in cases where the item has no schema entry
+# Determines an item's quality from its name
 def quality_from_name(name):
     qualities =['Inscribed',
                 'Heroic',
@@ -859,13 +876,23 @@ def quality_from_name(name):
                 'Autographed',
                 'Favored',
                 'Ascendant',
-                'Auspicious']
-    for quality in qualities:
-        if (re.match(quality, name)):
-            return quality
-       
-    # return 'Normal' if no quality matches 
-    return 'Normal'
+                'Auspicious',
+                'Exalted']
+
+    session = SessionInstance()
+
+    # Check to see if the item's whole name is a base item
+    try:
+        tmp_item = session.query(Item).filter(Item.name==name)[0]
+        return 'Normal'
+    # If not, then extract the quality from the item's name
+    except IndexError:
+        for quality in qualities:
+            if (re.match(quality, name)):
+                return quality
+           
+        # return 'Normal' if no quality matches 
+        return 'Normal'
 
 # Determine the color of an item from its quality string
 def colorize(quality):
@@ -883,7 +910,8 @@ def colorize(quality):
     ['Autographed', '#ADE55C'],
     ['Favored', '#FFFF00'],
     ['Ascendant', '#EB4B4B'],
-    ['Auspicious', '#32CD32']
+    ['Auspicious', '#32CD32'],
+    ['Exalted', '#CCCCCD']
     ]
     
     for qm in quality_map:
