@@ -635,10 +635,10 @@ def bad_wiki_info(data):
 
 # Attempts to find information on an item using the wiki
 def info_from_wiki(item_name):
-    data = {'slot': None,
-            'rarity': 'Common',
-            'rarity_color': '#B0C3D9',
-            'description': None}
+    data = {'slot': 'N/A',
+            'rarity': 'N/A',
+            'rarity_color': 'N/A',
+            'description': 'N/A'}
 
     session = SessionInstance()
 
@@ -657,6 +657,7 @@ def info_from_wiki(item_name):
         fields = ['slot', 'rarity', 'rarity_color', 'description']
         names = []
         names.append(item_name)
+        names.append('The '+item_name)
         name_no_apostrophe = item_name.replace('\'', '')
         # Only add this variant if the resultant string is different
         if name_no_apostrophe == item_name:
@@ -667,15 +668,18 @@ def info_from_wiki(item_name):
             for field in fields:
                 if not (name_data[field] is None):
                     data[field] = name_data[field]
-
-        # Check each field for None and replace with a string
-        for field in fields:
-            if (data[field] is None):
-                data[field] = 'N/A'
+            # Check if the wiki info is bad
+            if (not bad_wiki_info(data)):
+                # Break when good data has been gotten
+                break
 
         # If the wiki page was bad, return a warning
         if bad_wiki_info(data):
             logging.warning('Could not find wiki info for item '+item_name)
+
+        # DEBUG find the dumb slot parse
+        if ('href' in data['slot']):
+            logging.warning('Item '+item_name+' has the strange slot')
 
         # Add info to cache database table
         session.add(WikiInfo(
