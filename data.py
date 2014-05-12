@@ -422,10 +422,14 @@ def update_items():
         description = base_item.description
         hero = base_item.hero
 
-        # Check for courier being in the hero slot
+        # Check for item types being in the hero slot
         if (hero == "Courier"):
             item_type = "Courier"
             item_slot = "Courier"
+            hero = "None"
+        if (hero == "Wards"):
+            item_type = "Wards"
+            item_slot = "Wards"
             hero = "None"
 
         # Upsert the MarketItem
