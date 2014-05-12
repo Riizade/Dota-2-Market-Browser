@@ -945,7 +945,10 @@ def hero_name(name):
     ['siren', 'Naga Siren'],
     ['queenofpain', 'Queen of Pain'],
     ['necrolyte', 'Necrophos'],
-    ['witchdoctor', 'Witch Doctor']
+    ['witchdoctor', 'Witch Doctor'],
+    ['vengeful', 'Vengeful Spirit'],
+    ['vengefulspirit', 'Vengeful Spirit'],
+    ['rattletrap', 'Clockwerk']
     ]
 
     # For the special cases in name_map
